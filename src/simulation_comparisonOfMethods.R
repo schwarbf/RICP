@@ -1,5 +1,5 @@
 # ******************************************************************************
-#                                 SIMULATIONS
+#                     SIMULATION: VANILLA COMPARISON OF METHODS
 # ******************************************************************************
 
 # ------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ source("simDAGwsubenvs.R")
 source("runSimRICP.R")
 
 # ------------------------------------------------------------------------------
-# SIMULATION 1: COMPARISON OF METHODS
+# SIMULATION: VANILLA COMPARISON OF METHODS
 # ------------------------------------------------------------------------------
 # parameters
 nsim <- 5
@@ -133,7 +133,6 @@ for(metric in metrics) {
       eval(parse(text = txt))
     iter <- iter + 1
   }
-  print(p_compMethods)
   
   setwd(paste0(wdir, "fig"))
   ggsave(paste0("compMethods_", metric, ".pdf"), width = 7, height = 5)
