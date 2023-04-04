@@ -41,6 +41,9 @@ simDAGwsubenvs <- function(p = 4, k = 2, nenv = 10, nsubenvs = 10, renv = c(50, 
                            rBeta = c(-5, 5), tau = 1, interType = "do",
                            interMean = c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10), 
                            interStrength = c(0.1, 0.2, 0.5, 1, 2, 5, 10)) {
+  seed <- sample(1:1000, 1)
+  set.seed(seed)
+  
   # sampling DAG
   Adj <- matrix(0, ncol = p, nrow = p)
   Adj[upper.tri(Adj)] <- sample(0:1, p*(p-1)/2, replace = TRUE, 

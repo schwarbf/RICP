@@ -8,7 +8,7 @@
 # load packages
 libsre <- .libPaths()
 pkgs <- c("dplyr", "lme4", "nlme", "InvariantCausalPrediction", "nonlinearICP", 
-          "pcalg", "ggplot2", "reshape2", "doParallel")
+          "pcalg", "ggplot2", "reshape2", "doParallel", "tictoc")
 for(pkg in pkgs){
   if(!require(pkg, character.only = TRUE)) install.packages(pkg)
   library(pkg, character.only = TRUE)
@@ -25,25 +25,24 @@ source("simDAG.R")
 source("simDAGwsubenvs.R")
 source("runSimRICP.R")
 
-# set seed
-set.seed(1)
-
 # ------------------------------------------------------------------------------
 # SIMULATION 1: COMPARISON OF METHODS
 # ------------------------------------------------------------------------------
 # parameters
-nsim <- 5
+nsim <- 3
 
 # initializing the cluster
 nCores <- detectCores()
 cl <- makeCluster(nCores - 1)
 
 # running simulation in parallel
+tic()
 res <- foreach(sim = 1:nsim) %do% {
   runSimRICP(p = 4, k = 1, nenv = 5, renv = c(80, 100), rBeta = c(-5, 5), tau = 5, 
              alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
              subenvs = T, nsubenvs = 30) 
 }
+toc()
 
 # shutting down cluster
 stopCluster(cl)
