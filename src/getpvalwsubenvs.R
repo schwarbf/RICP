@@ -25,6 +25,9 @@
 #'   pvals vector: Contains the p-values from each hypothesis test. 
  
 getpvalwsubenvs <- function (X, Y, ExpInd, alpha = 0.05, test = "LRT-lme4") {
+  # set the optimizer control parameters 
+  ctrl <- lmerControl(optCtrl = list(x_tol_abs = 1e-08, f_tol_abs = 1e-08))
+  
   # extract confidence intervals (fit on observational distribution)
   cols <- c("Y", colnames(X))
   ExpIndObs <- ExpInd[[1]]
@@ -35,7 +38,8 @@ getpvalwsubenvs <- function (X, Y, ExpInd, alpha = 0.05, test = "LRT-lme4") {
   formLMM <- as.formula(paste("Y ~ ", paste(cols[-1], collapse= "+"), " -1 +",
                               paste0("(", paste0(cols[-1], collapse= " + ")), 
                               "-1 | ExpIndObs)"))
-  lmer.fit <- lmer(formLMM, data = data, REML = TRUE) %>% suppressMessages()
+  lmer.fit <- lmer(formLMM, data = data, REML = TRUE, control = ctrl) %>% 
+    suppressMessages()
   coeff <- fixef(lmer.fit)
   coeffSE <- summary(lmer.fit)$coefficients[, 2]
   confInt <- confint(lmer.fit, parm = "beta_", method = "Wald", level = 1 - alpha) %>% 
@@ -82,9 +86,9 @@ getpvalwsubenvs <- function (X, Y, ExpInd, alpha = 0.05, test = "LRT-lme4") {
       formNested <- as.formula(paste("Y ~ ", paste0(colsTest[-1], collapse= " + "), 
                                      " -1 +", paste0("(", paste0(cols[-1], collapse= " + ")), 
                                      "-1 | ExpIndTest)"))
-      lmer.fitNested <- lmer(formNested, data = dataTest, REML = FALSE) %>% 
+      lmer.fitNested <- lmer(formNested, data = dataTest, REML = FALSE, control = ctrl) %>% 
         suppressMessages()
-      lmer.fitAll <- lmer(formAll, data = dataTest, REML = FALSE) %>% 
+      lmer.fitAll <- lmer(formAll, data = dataTest, REML = FALSE, control = ctrl) %>% 
         suppressMessages()
       pvalvec[i] <- anova(lmer.fitNested, lmer.fitAll)[["Pr(>Chisq)"]][2]
     } else if(test == "LRT-nlme") {

@@ -32,6 +32,9 @@
 #'    each environment contains an equal number of subenvironments. Otherwise, 
 #'    each list element contains a vector with the number of subenvironments per
 #'    environment. Default is 'NULL' corresponding to no subenvironments. 
+#' @param methods vector: The methods for which the causal discovery algorithm 
+#'    should be run. Choose from 'random', 'pooled regression', 'GES', 'LinGAM', 
+#'    'ICP', 'nonlinearICP' and 'RICP'
 #' 
 #' @return list: Contains the following objects
 #'    DAG matrix: p x p adjacency matrix of the random DAG used.
@@ -50,7 +53,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
                        tau = 1, alpha = 0.05, interType = "do",
                        interMean = c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10), 
                        interStrength = c(0.1, 0.2, 0.5, 1, 2, 5, 10), 
-                       subenvs = FALSE, nsubenvs = NULL) {
+                       subenvs = FALSE, nsubenvs = NULL, methods = "RICP") {
   # simulate a DAG
   if(subenvs) {
     tmp <- simDAGwsubenvs(p = p, k = k, nenv = nenv, nsubenvs = nsubenvs, 
@@ -66,57 +69,68 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
   adjacencyMat <- tmp$Adjacency
   ExpInd <- tmp$ExpInd
   interInd <- tmp$interInd
+  acceptedSets <- list()
   # ============================================================================
   print(adjacencyMat)
   # ============================================================================
   
   # GES
-  GES.accep <- list()
-  score <- new("GaussL0penObsScore", data)
-  GES.fit <- ges(score)
-  cpdag <- GES.fit$essgraph$.in.edges
-  for(i in 1:p) {
-    plausPa <- cpdag[[i]]
-    if(length(plausPa) > 0) {
-      GES.accep[[i]] <- plausPa[which(sapply(plausPa, function(j) i %in% cpdag[[j]]) == F)]
-    } else{
-      GES.accep[[i]] <- integer(0)
+  if("GES" %in% methods) {
+    GES.accep <- list()
+    score <- new("GaussL0penObsScore", data)
+    GES.fit <- ges(score)
+    cpdag <- GES.fit$essgraph$.in.edges
+    for(i in 1:p) {
+      plausPa <- cpdag[[i]]
+      if(length(plausPa) > 0) {
+        GES.accep[[i]] <- plausPa[which(sapply(plausPa, function(j) i %in% cpdag[[j]]) == F)]
+      } else{
+        GES.accep[[i]] <- integer(0)
+      }
     }
+    acceptedSets[["GES"]] <- GES.accep
   }
   
   # LinGAM
-  lingam.accep <- list()
-  lingam.fit <- lingam(data)
-  for(i in 1:p) {
-    lingam.accep[[i]] <- which(lingam.fit$Bpruned[i, ] != 0)
+  if("LinGAM" %in% methods) {
+    LinGAM.accep <- list()
+    LinGAM.fit <- lingam(data)
+    for(i in 1:p) {
+      LinGAM.accep[[i]] <- which(LinGAM.fit$Bpruned[i, ] != 0)
+    }
+    acceptedSets[["LinGAM"]] <- LinGAM.accep
   }
   
   # random, pooled regression, ICP, RICP
-  random.accep <- pooledRegr.accep <- LinGAM.accep <- ICP.accep <- list()
-  nonlinearICP.accep <- RICP.accep <- list()
   for(i in 1:p) {
     X <- data[, -i, drop = FALSE]
     Y <-  data[, i]
     
     # random 
-    estRand <- sample(0:1, size = 1, prob = c(1-alpha, alpha))
-    random.accep[[i]] <- if(estRand == 0) integer(0) else sample((1:p)[-i], size = 1)
+    if("random" %in% methods) {
+      random.accep <- list()
+      estRand <- sample(0:1, size = 1, prob = c(1-alpha, alpha))
+      random.accep[[i]] <- if(estRand == 0) integer(0) else sample((1:p)[-i], size = 1)
+    }
     
     # pooled regression
-    dat <- cbind(Y, X) %>% as.data.frame()
-    colnames(dat) <- c("Y", colnames(X))
-    form <- as.formula(paste("Y ~ ", paste(colnames(X), collapse= "+")))
-    pvals <- summary(lm(form, data = dat))$coefficients[, 4]
-    estPooledRegr <- which(pvals <= alpha/ncol(X))
-    if("(Intercept)" %in% names(estPooledRegr)) {
-      if(length(names(estPooledRegr)) == 1) {
-        pooledRegr.accep[[i]] <- integer(0) # only intercept (empty set)
-      } else{
-        estPooledRegr <- estPooledRegr[-1]
+    if("pooled regression" %in% methods) {
+      pooledRegr.accep <- list()
+      dat <- cbind(Y, X) %>% as.data.frame()
+      colnames(dat) <- c("Y", colnames(X))
+      form <- as.formula(paste("Y ~ ", paste(colnames(X), collapse= "+")))
+      pvals <- summary(lm(form, data = dat))$coefficients[, 4]
+      estPooledRegr <- which(pvals <= alpha/ncol(X))
+      if("(Intercept)" %in% names(estPooledRegr)) {
+        if(length(names(estPooledRegr)) == 1) {
+          pooledRegr.accep[[i]] <- integer(0) # only intercept (empty set)
+        } else{
+          estPooledRegr <- estPooledRegr[-1]
+        }
+      } 
+      if(!exists("retObj")) {
+        pooledRegr.accep[[i]] <- gsub("X", "", names(estPooledRegr)) %>% as.integer()
       }
-    } 
-    if(!exists("retObj")) {
-      pooledRegr.accep[[i]] <- gsub("X", "", names(estPooledRegr)) %>% as.integer()
     }
     
     # ICP
@@ -153,45 +167,51 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
       X <- X[-interIndEnv, , drop = FALSE]
       Y <- Y[-interIndEnv]
     }
-    ICP.fit <- ICP(X, Y, ExpIndICP, alpha = alpha, test = "exact",
-                   showAcceptedSets = F, showCompletion = F, stopIfEmpty = T)
-    estICP <- Reduce(intersect, ICP.fit$acceptedSets)
-    if(is.null(estICP)) {
-      ICP.accep[[i]] <- integer(0)
-    } else{
-      ICP.accep[[i]] <- gsub("X", "", colnames(X)[estICP]) %>% as.integer()
+    if("ICP" %in% methods) {
+      ICP.accep <- list()
+      ICP.fit <- ICP(X, Y, ExpIndICP, alpha = alpha, test = "exact",
+                     showAcceptedSets = F, showCompletion = F, stopIfEmpty = T)
+      estICP <- Reduce(intersect, ICP.fit$acceptedSets)
+      if(is.null(estICP)) {
+        ICP.accep[[i]] <- integer(0)
+      } else{
+        ICP.accep[[i]] <- gsub("X", "", colnames(X)[estICP]) %>% as.integer()
+      }
     }
-    ICP.accep[[i]] <- integer(0)
-    
     
     # nonlinearICP
-    nonlinearICP.fit <- nonlinearICP(X, Y, as.factor(ExpIndICP), alpha = alpha)
-    estNonlinearICP <- Reduce(intersect, nonlinearICP.fit$acceptedSets)
-    if(length(estNonlinearICP) == 0) {
-      nonlinearICP.accep[[i]] <- integer(0)
-    } else{
-      nonlinearICP.accep[[i]] <- gsub("X", "", colnames(X)[estNonlinearICP]) %>% as.integer()
+    if("nonlinearICP" %in% methods) {
+      nonlinearICP.accep <- list()
+      nonlinearICP.fit <- nonlinearICP(X, Y, as.factor(ExpIndICP), alpha = alpha)
+      estNonlinearICP <- Reduce(intersect, nonlinearICP.fit$acceptedSets)
+      if(length(estNonlinearICP) == 0) {
+        nonlinearICP.accep[[i]] <- integer(0)
+      } else{
+        nonlinearICP.accep[[i]] <- gsub("X", "", colnames(X)[estNonlinearICP]) %>% as.integer()
+      }
     }
-    nonlinearICP.accep[[i]] <- integer(0)
     
     # RICP
-    RICP.fit <- RICP(X, Y, ExpIndRICP, alpha = alpha, subenvs = T, showAcceptedSets = T,
-                     showProgress = T, stopIfEmpty = T, "LRT-lme4")
-    if(is.null(RICP.fit$estimate)) {
-      RICP.accep[[i]] <- integer(0)
-    } else{
-      RICP.accep[[i]] <- gsub("X", "", RICP.fit$estimate) %>% as.integer()
+    if("RICP" %in% methods) {
+      RICP.accep <- list()
+      RICP.fit <- RICP(X, Y, ExpIndRICP, alpha = alpha, subenvs = T, showAcceptedSets = T,
+                       showProgress = T, stopIfEmpty = T, "LRT-lme4")
+      if(is.null(RICP.fit$estimate)) {
+        RICP.accep[[i]] <- integer(0)
+      } else{
+        RICP.accep[[i]] <- gsub("X", "", RICP.fit$estimate) %>% as.integer()
+      }
     }
-    RICP.accep[[i]] <- integer(0)
   }
-  acceptedSets <- list(random = random.accep, pooledRegression = pooledRegr.accep, 
-                       GES = GES.accep, LinGAM = lingam.accep, 
-                       ICP = ICP.accep, nonlinearICP = nonlinearICP.accep, 
-                       RICP = RICP.accep)
+  if("random" %in% methods) {acceptedSets[["random"]] <- random.accep}
+  if("pooled regression" %in% methods) {acceptedSets[["pooled regression"]] <- pooledRegr.accep}
+  if("ICP" %in% methods) {acceptedSets[["ICP"]] <- ICP.accep}
+  if("nonlinearICP" %in% methods) {acceptedSets[["nonlinearICP"]] <- nonlinearICP.accep}
+  if("RICP" %in% methods) {acceptedSets[["RICP"]] <- RICP.accep}
   
   # compute metrics
   fwer <- successProb <- avgJaccard <- list()
-  for(method in names(acceptedSets)) {
+  for(method in methods) {
     fwer[[method]] <- successProb[[method]] <- avgJaccard[[method]] <- 0
     fwerCount <- 0
     jaccard <- c()
