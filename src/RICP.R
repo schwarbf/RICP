@@ -14,7 +14,7 @@
 #' @param showProgress boolean: If TRUE, print out progress of computation.
 #' @param stopIfEmpty boolean: If TRUE, the algorithm stops if the intersection 
 #'    of accepted sets is empty. 
-#' @param test string: Ifsubenvs is TRUE, then a hypothesis test can be specified. 
+#' @param test string: If subenvs is TRUE, then a hypothesis test can be specified. 
 #'   The choices are "LRT-lme4" (default), "LRT-nlme" or "Wald-test". The 
 #'   difference mostly lies in either the underlying test (LRT vs Wald-test) and 
 #'   the package used to fit the LMM. The 'lme4' package does not allow for concrete

@@ -44,10 +44,17 @@ if("Linux" %in% Sys.info()) {
   nCores <- detectCores()
   cl <- makeCluster(nCores - 1)
 }
+clusterEvalQ(cl, c(library(dplyr), library(lme4), library(nlme),
+                   library(InvariantCausalPrediction), library(nonlinearICP),
+                   library(pcalg)))
+clusterExport(cl, c("interTypes", "nsim"), envir = environment())
+clusterExport(cl, c("RICP", "getpvalwsubenvs", "lmeFit", "simDAGwsubenvs", "runSimRICP"),
+              envir = environment())
 
 # running simulation in parallel
 scoresAll <- list()
 for(interType in interTypes) {
+  clusterExport(cl, "interType")
   res <- foreach(sim = 1:nsim) %dopar% {
     runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5, 
                alpha = 0.05, interType = interType, interMean = 2, interStrength = 5, 
@@ -104,7 +111,7 @@ df$method <- factor(df$method, levels = rowOrder)
 df_melted <- melt(df, id = "method")
 p_interType <- ggplot(df_melted, aes(x = variable, y = value, group = method, 
                                      colour = method, shape = method)) +
-  geom_point(size = 2) +
+  geom_point(size = 4) +
   geom_line(size = 0.3) +
   expand_limits(y = 1) +
   theme(panel.background = element_blank(), 
@@ -125,7 +132,7 @@ p_interType <- ggplot(df_melted, aes(x = variable, y = value, group = method,
 p_interType
 
 setwd(paste0(wdir, "fig"))
-ggsave(paste0("interType", metric, ".pdf"), width = 6, height = 5)
+ggsave(paste0("interType_", metric, ".pdf"), width = 6, height = 5)
 
 
 

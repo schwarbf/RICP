@@ -138,7 +138,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
     ExpIndICP <- ExpIndRICP <- ExpInd
     interIndEnv <- which(sapply(1:nenv, function(j) i %in% interInd[[j]]))
     if(subenvs) {
-      ExpIndList <- sapply(1:nenv, 
+      ExpIndList <- lapply(1:nenv, 
                            function(j) {
                              if(j > 1) {
                                indStart <- length(ExpInd[1:(j-1)] %>% unlist())
@@ -151,11 +151,11 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
       )
       if(sum(interIndEnv) > 0) {
         ExpIndRICP <- ExpIndRICP[-interIndEnv]
-        ExpIndICP <- sapply((1:nenv)[-interIndEnv], 
+        ExpIndICP <- lapply((1:nenv)[-interIndEnv], 
                             function(j) rep(j, length(ExpInd[[j]]))) %>% unlist()
         interIndEnv <- ExpIndList[interIndEnv] %>% unlist()
       } else{
-        ExpIndICP <- sapply(1:nenv, 
+        ExpIndICP <- lapply(1:nenv, 
                             function(j) rep(j, length(ExpInd[[j]]))) %>% unlist()
       }
     } else{

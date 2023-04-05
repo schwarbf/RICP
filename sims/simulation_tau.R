@@ -43,11 +43,18 @@ if("Linux" %in% Sys.info()) {
   nCores <- detectCores()
   cl <- makeCluster(nCores - 1)
 }
+clusterEvalQ(cl, c(library(dplyr), library(lme4), library(nlme),
+                   library(InvariantCausalPrediction), library(nonlinearICP),
+                   library(pcalg)))
+clusterExport(cl, c("taus", "nsim"), envir = environment())
+clusterExport(cl, c("RICP", "getpvalwsubenvs", "lmeFit", "simDAGwsubenvs", "runSimRICP"),
+              envir = environment())
 
 # running simulation in parallel
 scoresAll <- list()
 for(tau in taus) {
   # run simulations
+  clusterExport(cl, "tau")
   res <- foreach(sim = 1:nsim) %dopar% {
     runSimRICP(p = 3, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = tau, 
                alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
@@ -104,7 +111,7 @@ df$method <- factor(df$method, levels = rowOrder)
 df_melted <- melt(df, id = "method")
 p_tau <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
                                shape = method)) +
-  geom_point(size = 2) +
+  geom_point(size = 4) +
   geom_line(size = 0.3) +
   expand_limits(y = 1) +
   theme(panel.background = element_blank(), 
@@ -125,7 +132,7 @@ p_tau <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour =
 p_tau
 
 setwd(paste0(wdir, "fig"))
-ggsave(paste0("tau", metric, ".pdf"), width = 6, height = 5)
+ggsave(paste0("tau_", metric, ".pdf"), width = 6, height = 5)
 
 
 

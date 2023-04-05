@@ -42,15 +42,21 @@ if("Linux" %in% Sys.info()) {
   nCores <- detectCores()
   cl <- makeCluster(nCores - 1)
 }
+clusterEvalQ(cl, c(library(dplyr), library(lme4), library(nlme),
+                   library(InvariantCausalPrediction), library(nonlinearICP),
+                   library(pcalg)))
+clusterExport(cl, c("nsim"), envir = environment())
+clusterExport(cl, c("RICP", "getpvalwsubenvs", "lmeFit", "simDAGwsubenvs", "runSimRICP"),
+              envir = environment())
 
 # running simulation in parallel
-res <- foreach(sim = 1:nsim) %dopar% {
+res <- parLapply(cl, 1:nsim, function(sim) {
   runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5, 
              alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
              subenvs = T, nsubenvs = 30, 
              methods = c("random", "pooled regression", "GES", "LinGAM", "ICP", 
              "nonlinearICP", "RICP"))
-}
+  })
 
 # shutting down cluster
 stopCluster(cl)

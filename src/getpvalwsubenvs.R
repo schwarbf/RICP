@@ -55,7 +55,7 @@ getpvalwsubenvs <- function (X, Y, ExpInd, alpha = 0.05, test = "LRT-lme4") {
   i <- 1
   while(notRejected & i <= length(envs)) {
     env <- envs[i]
-    ExpIndList <- sapply(1:nenv, 
+    ExpIndList <- lapply(1:nenv, 
                          function(j) {
                            if(j > 1) {
                              indStart <- length(ExpInd[1:(j-1)] %>% unlist())
