@@ -1,5 +1,5 @@
 # ******************************************************************************
-#                          SIMULATION: INCREASING TAU
+#                          SIMULATION: interType
 # ******************************************************************************
 
 # ------------------------------------------------------------------------------
@@ -30,23 +30,27 @@ source("simDAGwsubenvs.R")
 source("runSimRICP.R")
 
 # ------------------------------------------------------------------------------
-# SIMULATION: INCREASING TAU
+# SIMULATION: interType
 # ------------------------------------------------------------------------------
 # parameters
-tic()
-taus <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10)
+interTypes <- c("do", "soft", "simultaneous-noise")
 nsim <- 50
 
 # initializing the cluster
-nCores <- detectCores()
-cl <- makeCluster(nCores - 1)
+# initializing the cluster
+if("Linux" %in% Sys.info()) {
+  cl <- makeCluster(50)
+} else {
+  nCores <- detectCores()
+  cl <- makeCluster(nCores - 1)
+}
 
 # running simulation in parallel
 scoresAll <- list()
-for(tau in taus) {
-  res <- foreach(sim = 1:nsim) %do% {
-    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = tau, 
-               alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
+for(interType in interTypes) {
+  res <- foreach(sim = 1:nsim) %dopar% {
+    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5, 
+               alpha = 0.05, interType = interType, interMean = 2, interStrength = 5, 
                subenvs = T, nsubenvs = 30, 
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP", 
                            "nonlinearICP", "RICP"))
@@ -68,7 +72,12 @@ for(tau in taus) {
     board[, "avg"] <- sapply(1:length(methods), function(i) {mean(board[i, 1:nsim])})
     scores[[metric]] <- board
   }
-  scoresAll[[as.character(tau)]] <- scores
+  scoresAll[[interType]] <- scores
+  
+  # progress bar
+  cat(paste0("*** ", round(100 * which(interTypes == interType)/length(interTypes)), 
+             "% complete: tested ", which(interTypes == interType), " out of ", length(interTypes), 
+             " intervention types \n"))
 }
 
 # shutting down cluster
@@ -76,25 +85,25 @@ stopCluster(cl)
 
 # saving as .RData-file
 setwd(paste0(wdir, "res"))
-save(scoresAll, file = "scores_tau.RData")
+save(scoresAll, file = "scores_interTypes.RData")
 
 # PLOTS
 # ------------------------------------------------------------------------------
 methods <- rownames(scoresAll[[1]][["FWER"]])
-df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(taus)))
+df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(interTypes)))
 rownames(df) <- methods
 colnames(df) <- names(scoresAll)
-for(tau in names(scoresAll)) {
+for(interType in names(scoresAll)) {
   for(method in methods) {
-    df[method, tau] <- scoresAll[[tau]][["successProbability"]][method, "avg"]
+    df[method, interType] <- scoresAll[[interType]][["successProbability"]][method, "avg"]
   }
 }
 df$method <- methods
 rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
 df$method <- factor(df$method, levels = rowOrder)
 df_melted <- melt(df, id = "method")
-p_tau <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
-                               shape = method)) +
+p_interType <- ggplot(df_melted, aes(x = variable, y = value, group = method, 
+                                     colour = method, shape = method)) +
   geom_point(size = 2) +
   geom_line(size = 0.3) +
   expand_limits(y = 1) +
@@ -103,21 +112,20 @@ p_tau <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour =
         panel.border = element_rect(colour = "black", fill =NA, size = 1), 
         legend.key=element_blank(), 
         legend.position = "right") +
-  guides(color = guide_legend(title = 'Tau')) + 
-  scale_colour_manual(name = 'Tau', 
+  guides(color = guide_legend(title = 'interType')) + 
+  scale_colour_manual(name = 'interType', 
                       labels = rowOrder, 
                       values = c('yellow3', 'orange', 'mediumpurple1', 'purple4', 
                                           'blue', 'brown', 'red')) + 
-  scale_shape_manual(name = 'Tau', 
+  scale_shape_manual(name = 'interType', 
                      labels = rowOrder, 
                      values = c(1, 2, 3, 4, 5, 6, 7)) +
-  xlab("TAU") +
+  xlab("interType") +
   ylab("SUCCESS PROBABILITY")
-p_tau
+p_interType
 
 setwd(paste0(wdir, "fig"))
-ggsave(paste0("tau", metric, ".pdf"), width = 6, height = 5)
-toc()
+ggsave(paste0("interType", metric, ".pdf"), width = 6, height = 5)
 
 
 

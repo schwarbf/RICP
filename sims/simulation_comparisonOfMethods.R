@@ -33,19 +33,23 @@ source("runSimRICP.R")
 # SIMULATION: VANILLA COMPARISON OF METHODS
 # ------------------------------------------------------------------------------
 # parameters
-nsim <- 5
+nsim <- 50
 
 # initializing the cluster
-nCores <- detectCores()
-cl <- makeCluster(nCores - 1)
+if("Linux" %in% Sys.info()) {
+  cl <- makeCluster(50)
+} else {
+  nCores <- detectCores()
+  cl <- makeCluster(nCores - 1)
+}
 
 # running simulation in parallel
-res <- foreach(sim = 1:nsim) %do% {
-  runSimRICP(p = 3, k = 1, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 1, 
+res <- foreach(sim = 1:nsim) %dopar% {
+  runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5, 
              alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
-             subenvs = T, nsubenvs = 25, 
+             subenvs = T, nsubenvs = 30, 
              methods = c("random", "pooled regression", "GES", "LinGAM", "ICP", 
-                         "nonlinearICP", "RICP"))
+             "nonlinearICP", "RICP"))
 }
 
 # shutting down cluster
@@ -95,9 +99,9 @@ for(metric in metrics) {
   quantiles <- sapply(1:nrow(df), function(i) quantile(df[i, -ncol(df)], probs = c(0, 0.25, 0.5, 0.75, 1)) %>% unlist()) %>%
     suppressWarnings()
   p_compMethods <- ggplot(df_melted, aes(x = sim, y = value, group = variable)) +
-    geom_point(color = "darksalmon", shape = 21, size = 1.5) +
+    geom_point(color = "darksalmon", shape = 21, size = 3) +
     geom_line(color = "grey", size = 0.1) +
-    expand_limits(x = nrow(df) + 1) +
+    expand_limits(x = nrow(df) + 1, y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
           panel.border = element_rect(colour = "black", fill =NA, size = 1), 

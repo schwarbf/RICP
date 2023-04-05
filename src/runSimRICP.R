@@ -71,7 +71,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
   interInd <- tmp$interInd
   acceptedSets <- list()
   # ============================================================================
-  print(adjacencyMat)
+  # print(adjacencyMat)
   # ============================================================================
   
   # GES
@@ -102,6 +102,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
   }
   
   # random, pooled regression, ICP, RICP
+  ICP.accep <- nonlinearICP.accep <- RICP.accep <- list()
   for(i in 1:p) {
     X <- data[, -i, drop = FALSE]
     Y <-  data[, i]
@@ -168,7 +169,6 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
       Y <- Y[-interIndEnv]
     }
     if("ICP" %in% methods) {
-      ICP.accep <- list()
       ICP.fit <- ICP(X, Y, ExpIndICP, alpha = alpha, test = "exact",
                      showAcceptedSets = F, showCompletion = F, stopIfEmpty = T)
       estICP <- Reduce(intersect, ICP.fit$acceptedSets)
@@ -181,7 +181,6 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
     
     # nonlinearICP
     if("nonlinearICP" %in% methods) {
-      nonlinearICP.accep <- list()
       nonlinearICP.fit <- nonlinearICP(X, Y, as.factor(ExpIndICP), alpha = alpha)
       estNonlinearICP <- Reduce(intersect, nonlinearICP.fit$acceptedSets)
       if(length(estNonlinearICP) == 0) {
@@ -193,9 +192,8 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
     
     # RICP
     if("RICP" %in% methods) {
-      RICP.accep <- list()
-      RICP.fit <- RICP(X, Y, ExpIndRICP, alpha = alpha, subenvs = T, showAcceptedSets = T,
-                       showProgress = T, stopIfEmpty = T, "LRT-lme4")
+      RICP.fit <- RICP(X, Y, ExpIndRICP, alpha = alpha, subenvs = T, showAcceptedSets = F,
+                       showProgress = F, stopIfEmpty = T, "LRT-lme4")
       if(is.null(RICP.fit$estimate)) {
         RICP.accep[[i]] <- integer(0)
       } else{
