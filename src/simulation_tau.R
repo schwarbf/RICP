@@ -7,7 +7,7 @@
 # ------------------------------------------------------------------------------
 # load packages
 pkgs <- c("dplyr", "lme4", "nlme", "InvariantCausalPrediction", "nonlinearICP", 
-          "pcalg", "ggplot2", "reshape2", "doParallel")
+          "pcalg", "ggplot2", "reshape2", "doParallel", "tictoc")
 for(pkg in pkgs){
   if(!require(pkg, character.only = TRUE)) install.packages(pkg)
   library(pkg, character.only = TRUE)
@@ -33,8 +33,9 @@ source("runSimRICP.R")
 # SIMULATION: INCREASING TAU
 # ------------------------------------------------------------------------------
 # parameters
+tic()
 taus <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10)
-nsim <- 2
+nsim <- 50
 
 # initializing the cluster
 nCores <- detectCores()
@@ -44,9 +45,9 @@ cl <- makeCluster(nCores - 1)
 scoresAll <- list()
 for(tau in taus) {
   res <- foreach(sim = 1:nsim) %do% {
-    runSimRICP(p = 3, k = 1, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0, 
+    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = tau, 
                alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
-               subenvs = T, nsubenvs = 25, 
+               subenvs = T, nsubenvs = 30, 
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP", 
                            "nonlinearICP", "RICP"))
   }
@@ -116,6 +117,7 @@ p_tau
 
 setwd(paste0(wdir, "fig"))
 ggsave(paste0("tau", metric, ".pdf"), width = 6, height = 5)
+toc()
 
 
 
