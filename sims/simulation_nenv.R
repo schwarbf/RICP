@@ -33,7 +33,7 @@ source("runSimRICP.R")
 # SIMULATION: INCREASING NUMBER OF ENVIRONMENTS
 # ------------------------------------------------------------------------------
 # parameters
-nenvs <- c(7, 8, 9, 10, 15, 20, 50)
+nenvs <- c(10, 15, 20, 5, 100)
 nsim <- 50
 
 # initializing the cluster
@@ -56,7 +56,7 @@ for(nenv in nenvs) {
   # run simulations
   clusterExport(cl, "nenv")
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = 3, k = 2, nenv = nenv, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+    runSimRICP(p = 5, k = 2, nenv = nenv, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
                alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
                subenvs = T, nsubenvs = 30,
                methods = c("random", "pooled regression", "GES", "LinGAM",

@@ -33,7 +33,7 @@ source("runSimRICP.R")
 # SIMULATION: INCREASING NUMBER OF DATAPOINTS
 # ------------------------------------------------------------------------------
 # parameters
-ns <- c(5, 10, 20, 50, 100, 200)
+ns <- c(20, 30, 50, 70, 100, 200)
 nsim <- 50
 
 # initializing the cluster
