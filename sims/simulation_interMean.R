@@ -34,8 +34,7 @@ source("runSimRICP.R")
 # ------------------------------------------------------------------------------
 # parameters
 interMeans <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 50)
-interMeans <- 0.1
-nsim <- 7
+nsim <- 50
 
 # initializing the cluster
 if("Linux" %in% Sys.info()) {
@@ -58,7 +57,7 @@ for(interMean in interMeans) {
   # run simulations
   clusterExport(cl, "interMean")
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+    runSimRICP(p = 3, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
                alpha = 0.05, interType = "do", interMean = interMean, interStrength = 5,
                subenvs = T, nsubenvs = 30,
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",

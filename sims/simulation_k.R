@@ -33,7 +33,7 @@ source("runSimRICP.R")
 # SIMULATION: INCREASING k
 # ------------------------------------------------------------------------------
 # parameters
-ks <- c(1, 2, 3, 4, 5)
+ks <- c(1, 2, 3, 4)
 nsim <- 50
 
 # initializing the cluster

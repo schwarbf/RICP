@@ -70,10 +70,7 @@ simDAGwsubenvs <- function(p = 4, k = 2, nenv = 10, nsubenvs = 10, renv = c(50, 
       interInd[[env]] <- sample(1:p, size = 1)
       interMean <- if(length(interMean) > 1) sample(interMean, size = 1) else interMean
       interStrength <- if(length(interStrength) > 1) sample(interStrength, size = 1) else interStrength
-      # ==========================================================================
-      # TO DEL: Noise intervention not normal
       interSig <- interMean + interStrength*runif(1)
-      # ==========================================================================
     }
     B[[env]] <- list()
     for(subenv in 1:nsubenvs) {
