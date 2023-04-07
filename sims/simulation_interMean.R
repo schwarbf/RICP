@@ -14,10 +14,10 @@ for(pkg in pkgs){
 }
 
 # setting the correct working directory
-if("Linux" %in% Sys.info()) {
-  wdir <- "~/RICP/"
-} else {
+if("florianschwarb" %in% Sys.info()){
   wdir <- "/Users/florianschwarb/Desktop/Master-Thesis/Code/RICP/"
+} else{
+  wdir <- getwd()
 }
 setwd(paste0(wdir, "src"))
 
@@ -34,7 +34,8 @@ source("runSimRICP.R")
 # ------------------------------------------------------------------------------
 # parameters
 interMeans <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 50)
-nsim <- 50
+interMeans <- 0.1
+nsim <- 7
 
 # initializing the cluster
 if("Linux" %in% Sys.info()) {
@@ -45,9 +46,10 @@ if("Linux" %in% Sys.info()) {
 }
 clusterEvalQ(cl, c(library(dplyr), library(lme4), library(nlme),
                    library(InvariantCausalPrediction), library(nonlinearICP),
-                   library(pcalg)))
-clusterExport(cl, c("interMeans", "nsim"), envir = environment())
-clusterExport(cl, c("RICP", "getpvalwsubenvs", "lmeFit", "simDAGwsubenvs", "runSimRICP"),
+                   library(pcalg))) %>% invisible()
+clusterExport(cl, c("nsim"), envir = environment())
+clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
+                    "simDAGwsubenvs", "runSimRICP"),
               envir = environment())
 
 # running simulation in parallel
@@ -55,13 +57,13 @@ scoresAll <- list()
 for(interMean in interMeans) {
   # run simulations
   clusterExport(cl, "interMean")
-  res <- foreach(sim = 1:nsim) %dopar% {
-    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5, 
-               alpha = 0.05, interType = "do", interMean = interMean, interStrength = 5, 
-               subenvs = T, nsubenvs = 30, 
-               methods = c("random", "pooled regression", "GES", "LinGAM", "ICP", 
+  res <- parLapply(cl, 1:nsim, function(sim) {
+    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+               alpha = 0.05, interType = "do", interMean = interMean, interStrength = 5,
+               subenvs = T, nsubenvs = 30,
+               methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
                            "nonlinearICP", "RICP"))
-  }
+  })
   
   # compute average over all simulation runs
   scores <- list()

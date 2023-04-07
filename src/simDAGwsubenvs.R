@@ -66,18 +66,8 @@ simDAGwsubenvs <- function(p = 4, k = 2, nenv = 10, nsubenvs = 10, renv = c(50, 
   i <- 1
   for(env in 1:nenv) {
     if(env != 1) {
-      # choosing intervention type
       type <- sample(interType, 1)
-      # ==========================================================================
-      # TO DEL: Allow interventions on multiple targets
-      # numInter <- sample(c("one", "multiple"), 1, prob = c(1/6, 5/6)) 
-      numInter <- "one"
-      # ==========================================================================
-      if(numInter == "one") {
-        interInd[[env]] <- sample(1:p, 1)
-      } else{
-        interInd[[env]] <- sample(1:p, size = ceiling(p/3))
-      }
+      interInd[[env]] <- sample(1:p, size = 1)
       interMean <- if(length(interMean) > 1) sample(interMean, size = 1) else interMean
       interStrength <- if(length(interStrength) > 1) sample(interStrength, size = 1) else interStrength
       # ==========================================================================

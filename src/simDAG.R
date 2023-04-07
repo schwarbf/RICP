@@ -56,27 +56,18 @@ simDAG <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 5),
   B <- list()
   interInd <- list()
   for(env in 1:nenv) {
+    if(env != 1) {
+      type <- sample(interType, 1)
+      interInd[[env]] <- sample(1:p, 1)
+      interMean <- if(length(interMean) > 1) sample(interMean, size = 1) else interMean
+      interStrength <- if(length(interStrength) > 1) sample(interStrength, size = 1) else interStrength
+      interSig <- interMean + interStrength*runif(1)
+    }
     rowInd <- if(env == 1) {1:n[env]} else {(sum(n[1:(env-1)]) +1):(sum(n[1:(env-1)]) + n[env])}
-    sdEps <- sample(c(0.1, 0.2, 0.5, 1, 2, 5, 10), 1)
+    sdEps <- 1
     eps[rowInd, ] <- matrix(rnorm(p*n[env], sd = sdEps), nrow = n[env], ncol = p)
     B[[env]] <- Sign
     B[[env]][ind] <- rnorm(length(Sign[ind]), sd = tau)
-    
-    # choosing intervention type
-    type <- sample(interType, 1)
-    # ==========================================================================
-    # TO DEL: Allow interventions on multiple targets
-    # numInter <- sample(c("one", "multiple"), 1, prob = c(1/6, 5/6)) 
-    numInter <- "one"
-    # ==========================================================================
-    if(numInter == "one") {
-      interInd[[env]] <- sample(1:p, 1)
-    } else{
-      interInd[[env]] <- sample(1:p, size = ceiling(p/3))
-    }
-    interMean <- if(length(interMean) > 1) sample(interMean, size = 1) else interMean
-    interStrength <- if(length(interStrength) > 1) sample(interStrength, size = 1) else interStrength
-    interSig <- interMean + interStrength*runif(1)
     for(j in p:1) {
       X[rowInd, j] <- X[rowInd, j:p, drop = FALSE] %*% 
         (Beta[j, j:p] + B[[env]][j, j:p]) + eps[rowInd, j] 

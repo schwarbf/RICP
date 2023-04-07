@@ -70,9 +70,6 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
   ExpInd <- tmp$ExpInd
   interInd <- tmp$interInd
   acceptedSets <- list()
-  # ============================================================================
-  # print(adjacencyMat)
-  # ============================================================================
   
   # GES
   if("GES" %in% methods) {
@@ -160,7 +157,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
       }
     } else{
       if(sum(interIndEnv) > 0) {
-        intervIndEnv <- which(ExpInd %in% interIndEnv)
+        interIndEnv <- which(ExpInd %in% interIndEnv)
         ExpIndICP <- ExpIndRICP <- ExpInd[-interIndEnv]
       }
     }
@@ -169,7 +166,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
       Y <- Y[-interIndEnv]
     }
     if("ICP" %in% methods) {
-      ICP.fit <- ICP(X, Y, ExpIndICP, alpha = alpha, test = "exact",
+      ICP.fit <- ICP(X, Y, ExpIndICP, alpha = alpha, test = "normal",
                      showAcceptedSets = F, showCompletion = F, stopIfEmpty = T)
       estICP <- Reduce(intersect, ICP.fit$acceptedSets)
       if(is.null(estICP)) {
@@ -192,8 +189,9 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
     
     # RICP
     if("RICP" %in% methods) {
-      RICP.fit <- RICP(X, Y, ExpIndRICP, alpha = alpha, subenvs = T, showAcceptedSets = F,
-                       showProgress = F, stopIfEmpty = T, "LRT-lme4")
+      RICP.fit <- RICP(X, Y, ExpIndRICP, alpha = alpha, subenvs = subenvs, 
+                       showAcceptedSets = F, showProgress = F, stopIfEmpty = T, 
+                       "LRT-lme4")
       if(is.null(RICP.fit$estimate)) {
         RICP.accep[[i]] <- integer(0)
       } else{

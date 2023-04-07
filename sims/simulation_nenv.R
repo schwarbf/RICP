@@ -14,10 +14,10 @@ for(pkg in pkgs){
 }
 
 # setting the correct working directory
-if("Linux" %in% Sys.info()) {
-  wdir <- "~/RICP/"
-} else {
+if("florianschwarb" %in% Sys.info()){
   wdir <- "/Users/florianschwarb/Desktop/Master-Thesis/Code/RICP/"
+} else{
+  wdir <- getwd()
 }
 setwd(paste0(wdir, "src"))
 
@@ -44,10 +44,11 @@ if("Linux" %in% Sys.info()) {
   cl <- makeCluster(nCores - 1)
 }
 clusterEvalQ(cl, c(library(dplyr), library(lme4), library(nlme),
-                     library(InvariantCausalPrediction), library(nonlinearICP),
-                     library(pcalg)))
-clusterExport(cl, c("nenvs", "nsim"), envir = environment())
-clusterExport(cl, c("RICP", "getpvalwsubenvs", "lmeFit", "simDAGwsubenvs", "runSimRICP"),
+                   library(InvariantCausalPrediction), library(nonlinearICP),
+                   library(pcalg))) %>% invisible()
+clusterExport(cl, c("nsim"), envir = environment())
+clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
+                    "simDAGwsubenvs", "runSimRICP"),
               envir = environment())
 
 # running simulation in parallel
@@ -131,10 +132,9 @@ p_nenv <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour 
                      values = c(1, 2, 3, 4, 5, 6, 7)) +
   xlab("NUMBER OF ENVIRONMENTS") +
   ylab("SUCCESS PROBABILITY")
-p_nenv
 
 setwd(paste0(wdir, "fig"))
-ggsave(paste0("nenv", metric, ".pdf"), width = 6, height = 5)
+ggsave(paste0("nenv_", metric, ".pdf"), width = 6, height = 5)
 
 
 

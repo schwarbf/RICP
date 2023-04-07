@@ -14,10 +14,10 @@ for(pkg in pkgs){
 }
 
 # setting the correct working directory
-if("Linux" %in% Sys.info()) {
-  wdir <- "~/RICP/"
-} else {
+if("florianschwarb" %in% Sys.info()){
   wdir <- "/Users/florianschwarb/Desktop/Master-Thesis/Code/RICP/"
+} else{
+  wdir <- getwd()
 }
 setwd(paste0(wdir, "src"))
 
@@ -45,9 +45,10 @@ if("Linux" %in% Sys.info()) {
 }
 clusterEvalQ(cl, c(library(dplyr), library(lme4), library(nlme),
                    library(InvariantCausalPrediction), library(nonlinearICP),
-                   library(pcalg)))
-clusterExport(cl, c("ps", "nsim"), envir = environment())
-clusterExport(cl, c("RICP", "getpvalwsubenvs", "lmeFit", "simDAGwsubenvs", "runSimRICP"),
+                   library(pcalg))) %>% invisible()
+clusterExport(cl, c("nsim"), envir = environment())
+clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
+                    "simDAGwsubenvs", "runSimRICP"),
               envir = environment())
 
 # running simulation in parallel
@@ -55,13 +56,13 @@ scoresAll <- list()
 for(p in ps) {
   k <- if(p == 2) 1 else 2
   clusterExport(cl, c("k", "p"))
-  res <- foreach(sim = 1:nsim) %dopar% {
-    runSimRICP(p = p, k = k, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5, 
-               alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
-               subenvs = T, nsubenvs = 30, 
-               methods = c("random", "pooled regression", "GES", "LinGAM", "ICP", 
+  res <- parLapply(cl, 1:nsim, function(sim) {
+    runSimRICP(p = p, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+               alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
+               subenvs = T, nsubenvs = 30,
+               methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
                            "nonlinearICP", "RICP"))
-  }
+  })
   
   # compute average over all simulation runs
   scores <- list()
@@ -129,7 +130,6 @@ p_p <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = m
                      values = c(1, 2, 3, 4, 5, 6, 7)) +
   xlab("p") +
   ylab("SUCCESS PROBABILITY")
-# p_p
 
 setwd(paste0(wdir, "fig"))
 ggsave(paste0("p_", metric, ".pdf"), width = 6, height = 5)

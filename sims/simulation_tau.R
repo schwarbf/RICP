@@ -14,11 +14,7 @@ for(pkg in pkgs){
 }
 
 # setting the correct working directory
-if("Linux" %in% Sys.info()) {
-  wdir <- "~/RICP/"
-} else {
-  wdir <- "/Users/florianschwarb/Desktop/Master-Thesis/Code/RICP/"
-}
+wdir <- getwd()
 setwd(paste0(wdir, "src"))
 
 source("RICP.R") 
@@ -55,13 +51,13 @@ scoresAll <- list()
 for(tau in taus) {
   # run simulations
   clusterExport(cl, "tau")
-  res <- foreach(sim = 1:nsim) %dopar% {
-    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = tau, 
-               alpha = 0.05, interType = "do", interMean = 2, interStrength = 5, 
-               subenvs = T, nsubenvs = 30, 
-               methods = c("random", "pooled regression", "GES", "LinGAM", "ICP", 
+  res <- parLapply(cl, 1:nsim, function(sim) {
+    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = tau,
+               alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
+               subenvs = T, nsubenvs = 30,
+               methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
                            "nonlinearICP", "RICP"))
-  }
+  })
   
   # compute average over all simulation runs
   scores <- list()
@@ -129,7 +125,6 @@ p_tau <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour =
                      values = c(1, 2, 3, 4, 5, 6, 7)) +
   xlab("TAU") +
   ylab("SUCCESS PROBABILITY")
-p_tau
 
 setwd(paste0(wdir, "fig"))
 ggsave(paste0("tau_", metric, ".pdf"), width = 6, height = 5)

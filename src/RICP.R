@@ -14,13 +14,14 @@
 #' @param showProgress boolean: If TRUE, print out progress of computation.
 #' @param stopIfEmpty boolean: If TRUE, the algorithm stops if the intersection 
 #'    of accepted sets is empty. 
-#' @param test string: If subenvs is TRUE, then a hypothesis test can be specified. 
-#'   The choices are "LRT-lme4" (default), "LRT-nlme" or "Wald-test". The 
-#'   difference mostly lies in either the underlying test (LRT vs Wald-test) and 
-#'   the package used to fit the LMM. The 'lme4' package does not allow for concrete
-#'   specification of the structure of the covariance matrices for the noise and 
-#'   the random effects whereas 'nlme' does. The drawback is that 'nlme' is much 
-#'   slower. 'lme4' fits a generic (unstructured) covariance matrix.
+#' @param test string: If subenvs is TRUE, then test choices are "LRT-lme4" (default), 
+#'   "LRT-nlme" or "Wald-test". The difference mostly lies in either the underlying 
+#'   test (LRT vs Wald-test) and the package used to fit the LMM. The 'lme4' package 
+#'   does not allow for concrete specification of the structure of the covariance 
+#'   matrices for the noise and the random effects whereas 'nlme' does. The 
+#'   drawback is that 'nlme' is much slower. 'lme4' fits a generic (unstructured) 
+#'   covariance matrix. If subenvs is FALSE, then one can only specify the 
+#'   package "lme4" or "nmle". Default is "LRT-lme4".
 #' 
 #' @return list: Contains the following objects: 
 #'   estimate vector: Contains the estimate of the predictors that are invariant
@@ -40,6 +41,7 @@
 #'   stopIfEmpty boolean: TRUE if the algorithm was stopped if the intersection of 
 #'      plausible causal predictors was empty. FALSE otherwise. 
 #'   nEnv integer: Number of environments. 
+#'   pvals vector: p-values of hypothesis tests if subenvs is TRUE.
 #' @export
 
 RICP <- function(X, Y, ExpInd, alpha = 0.05, subenvs = FALSE, showAcceptedSets = TRUE, 
@@ -62,6 +64,7 @@ RICP <- function(X, Y, ExpInd, alpha = 0.05, subenvs = FALSE, showAcceptedSets =
   coeff <- coeffSE <- vector(mode = "list", length = ncol(X))
   testResults <- list()
   continue <- TRUE
+  if(subenvs) {pvall <- list()}
   
   # adding intercept to model 
   X <- cbind(1, X) 
@@ -104,6 +107,7 @@ RICP <- function(X, Y, ExpInd, alpha = 0.05, subenvs = FALSE, showAcceptedSets =
         if (showAcceptedSets)
           cat(paste("accepted empty set \n"))
       }
+      if(subenvs) {pvall[["empty set"]] <- tmp$pvals}
     } else{ # any other set
       notcandidate <- colnames(X)[-c(1, which(colnames(X) %in% candidates[[setIter]]))]
       if(!subenvs) {
@@ -140,6 +144,7 @@ RICP <- function(X, Y, ExpInd, alpha = 0.05, subenvs = FALSE, showAcceptedSets =
                                            0, na.rm = TRUE)
         }
       }
+      if(subenvs) {pvall[[paste0(candidate, collapse = ", ")]] <- tmp$pvals}
     }
     if (showProgress && ncandidates > 0) {
       cat(paste0("*** ", round(100 * setIter/ncandidates), 
@@ -151,6 +156,7 @@ RICP <- function(X, Y, ExpInd, alpha = 0.05, subenvs = FALSE, showAcceptedSets =
                  colnames = colnames(confInt), dimX = dim(X), coeff = coeff, 
                  coeffSE = coeffSE,  acceptedSets = accepted, testResults = testResults, 
                  stopIfEmpty = stopIfEmpty, nEnv = length(ExpInd))
+  if(subenvs){retobj$pvals <- pvall}
   class(retobj) <- "InvariantCausalPredictionUnderRandomEffects"
   return(retobj)
 }
