@@ -23,8 +23,9 @@ if("florianschwarb" %in% Sys.info()){
 # LOADING DATA
 # ------------------------------------------------------------------------------
 setwd(paste0(wdir, "res/subenv"))
-files <- c("scores_interMean.RData", "scores_interTypes.RData", 
-           "scores_k.RData", "scores_nenv.RData", "scores_tau.RData")
+files <- c("scores_k.RData", "scores_nsubenvs.RData", "scores_interMean.RData", 
+           "scores_interTypes.RData", "scores_k.RData", "scores_nenv.RData", 
+           "scores_tau.RData")
 for(file in files){
   load(file = file)
   fileName <- strsplit(file, ".RData")[[1]]
@@ -35,8 +36,8 @@ rm(scoresAll)
 # ------------------------------------------------------------------------------
 # PLOTTING
 # ------------------------------------------------------------------------------
-plotsReady <- c("interMean", "interType", "nenv", "tau")
-metric <- "avgJaccard" # successProbability, avgJaccard, FWER
+plotsReady <- c("k", "nsubenvs", "interType", "interMean", "interStrength", "nenv", "tau")
+metric <- "successProbability" # successProbability, avgJaccard, FWER
 
 metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"AVG. JACCARD SIMILARITY"} else {"FWER"}
 
@@ -283,21 +284,21 @@ if("nenv" %in% plotsReady) {
 
 # nsubenv
 # ------------------------------------------------------------------------------
-if("nsubenv" %in% plotsReady) {
-  methods <- rownames(scores_subnenv[[1]][[metric]])
-  df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(scores_nsubenv)))
+if("nsubenvs" %in% plotsReady) {
+  methods <- rownames(scores_nsubenvs[[1]][[metric]])
+  df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(scores_nsubenvs)))
   rownames(df) <- methods
-  colnames(df) <- names(scores_subnenv)
-  for(subenv in names(scores_subnenv)) {
+  colnames(df) <- names(scores_nsubenvs)
+  for(subenv in names(scores_nsubenvs)) {
     for(method in methods) {
-      df[method, subenv] <- scores_subnenv[[subenv]][[metric]][method, "avg"]
+      df[method, subenv] <- scores_nsubenvs[[subenv]][[metric]][method, "avg"]
     }
   }
   df$method <- methods
   rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
-  p_subenv <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
+  p_nsubenvs <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
                                     shape = method)) +
     geom_point(size = 2) +
     geom_line(linewidth = 0.3) +
@@ -317,7 +318,7 @@ if("nsubenv" %in% plotsReady) {
     xlab("# SUBENVIRONMENTS") +
     ylab(metricName)
   if(metric == "FWER") {
-    p_subenv <- p_subenv + geom_hline(yintercept = 0.05, linetype = 3)
+    p_nsubenvs <- p_nsubenvs + geom_hline(yintercept = 0.05, linetype = 3)
   }
 }
 
@@ -403,7 +404,7 @@ if("tau" %in% plotsReady) {
 
 # JOINT PLOT
 # ------------------------------------------------------------------------------
-p_joint <- ggarrange(p_tau, p_nenv, p_interMean, p_interType, p_tau, p_nenv, p_interMean, p_interType, p_interType,
+p_joint <- ggarrange(p_k, p_tau, p_nenv, p_nsubenvs, p_interType, p_interMean, p_interStrength, p_tau, p_nenv, 
           ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom")
 p_joint
 setwd(paste0(wdir, "fig/subenv"))
