@@ -98,8 +98,8 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
     
     # construct confidence intervals for '(beta + b) - b'
     confInt_betaPlusBMinusB <- confInt_beta
-    confInt_betaPlusBMinusB[, "lower"] <- confInt_betaPlusB[, "lower"] - qnorm(1-alphaBonfCor/4)*tauHat
-    confInt_betaPlusBMinusB[, "upper"] <- confInt_betaPlusB[, "upper"] + qnorm(1-alphaBonfCor/4)*tauHat
+    confInt_betaPlusBMinusB[, "lower"] <- confInt_betaPlusB[, "lower"] # - qnorm(1-alphaBonfCor/4)*tauHat
+    confInt_betaPlusBMinusB[, "upper"] <- confInt_betaPlusB[, "upper"] # + qnorm(1-alphaBonfCor/4)*tauHat
     
     # check if 'confInt_beta' and 'confInt_betaPlusBMinusB' overlaps
     checkOverlap <- function(i) {

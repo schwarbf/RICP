@@ -69,8 +69,12 @@ simDAG <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 5),
     B[[env]] <- Sign
     B[[env]][ind] <- rnorm(length(Sign[ind]), sd = tau)
     for(j in p:1) {
-      X[rowInd, j] <- X[rowInd, j:p, drop = FALSE] %*% 
-        (Beta[j, j:p] + B[[env]][j, j:p]) + eps[rowInd, j] 
+      if(env != 1) {
+        X[rowInd, j] <- X[rowInd, j:p, drop = FALSE] %*% 
+          (Beta[j, j:p] + B[[env]][j, j:p]) + eps[rowInd, j] 
+      } else{
+        X[rowInd, j] <- X[rowInd, j:p, drop = FALSE] %*% Beta[j, j:p]+ eps[rowInd, j] 
+      }
       if(env != 1 && j %in% interInd[[env]]) {
         if(type == "do") {
           X[rowInd, j] <- interSig

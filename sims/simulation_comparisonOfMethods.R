@@ -16,6 +16,8 @@ for(pkg in pkgs){
 # setting the correct working directory
 if("florianschwarb" %in% Sys.info()){
   wdir <- "/Users/florianschwarb/Desktop/Master-Thesis/Code/RICP/"
+} else if("linux" %in% Sys.info()) {
+  wdir <- "~/RICP/"
 } else{
   wdir <- getwd()
 }
@@ -33,7 +35,7 @@ source("runSimRICP.R")
 # SIMULATION: VANILLA COMPARISON OF METHODS
 # ------------------------------------------------------------------------------
 # parameters
-nsim <- 100
+nsim <- 7
 
 # initializing the cluster
 if("Linux" %in% Sys.info()) {
@@ -52,7 +54,7 @@ clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
 
 # running simulation in parallel
 res <- parLapply(cl, 1:nsim, function(sim) {
-  runSimRICP(p = 5, k = 2, nenv = 30, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.1,
+  runSimRICP(p = 3, k = 2, nenv = 30, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
              alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
              subenvs = F, nsubenvs = 30,
              methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
