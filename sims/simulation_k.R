@@ -16,7 +16,7 @@ for(pkg in pkgs){
 # setting the correct working directory
 if("florianschwarb" %in% Sys.info()){
   wdir <- "/Users/florianschwarb/Desktop/Master-Thesis/Code/RICP/"
-} else if("linux" %in% Sys.info()) {
+} else if("Linux" %in% Sys.info()) {
   wdir <- "~/RICP/"
 } else{
   wdir <- getwd()
