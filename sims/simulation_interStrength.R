@@ -59,7 +59,7 @@ for(interStrength in interStrengths) {
   # run simulations
   clusterExport(cl, 'interStrength')
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+    runSimRICP(p = 6, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
                alpha = 0.05, interType = "do", interMean = 2, interStrength = interStrength,
                subenvs = T, nsubenvs = 30,
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",

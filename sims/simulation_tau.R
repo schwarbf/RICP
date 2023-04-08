@@ -58,7 +58,7 @@ for(tau in taus) {
   # run simulations
   clusterExport(cl, "tau")
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = tau,
+    runSimRICP(p = 6, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = tau,
                alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
                subenvs = T, nsubenvs = 30,
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",

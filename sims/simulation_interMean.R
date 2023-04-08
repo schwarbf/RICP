@@ -59,7 +59,7 @@ for(interMean in interMeans) {
   # run simulations
   clusterExport(cl, "interMean")
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = 3, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+    runSimRICP(p = 6, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
                alpha = 0.05, interType = "do", interMean = interMean, interStrength = 5,
                subenvs = T, nsubenvs = 30,
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",

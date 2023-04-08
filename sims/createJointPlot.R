@@ -23,9 +23,9 @@ if("florianschwarb" %in% Sys.info()){
 # LOADING DATA
 # ------------------------------------------------------------------------------
 setwd(paste0(wdir, "res/subenv"))
-files <- c("scores_k.RData", "scores_nsubenvs.RData", "scores_interMean.RData", 
-           "scores_interTypes.RData", "scores_k.RData", "scores_nenv.RData", 
-           "scores_tau.RData")
+files <- c("scores_p.RData", "scores_k.RData", "scores_n.RData", "scores_nsubenvs.RData", 
+           "scores_interMean.RData", "scores_interTypes.RData", "scores_k.RData", 
+           "scores_nenv.RData", "scores_tau.RData", "scores_interStrength.RData")
 for(file in files){
   load(file = file)
   fileName <- strsplit(file, ".RData")[[1]]
@@ -36,8 +36,8 @@ rm(scoresAll)
 # ------------------------------------------------------------------------------
 # PLOTTING
 # ------------------------------------------------------------------------------
-plotsReady <- c("k", "nsubenvs", "interType", "interMean", "interStrength", "nenv", "tau")
-metric <- "successProbability" # successProbability, avgJaccard, FWER
+plotsReady <- c("p", "k", "n", "nsubenvs", "interType", "interMean", "interStrength", "nenv", "tau")
+metric <- "FWER" # successProbability, avgJaccard, FWER
 
 metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"AVG. JACCARD SIMILARITY"} else {"FWER"}
 
@@ -85,7 +85,7 @@ if("interMean" %in% plotsReady) {
 # ------------------------------------------------------------------------------
 if("interStrength" %in% plotsReady) {
   methods <- rownames(scores_interStrength[[1]][[metric]])
-  df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(scores_interStrengths)))
+  df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(scores_interStrength)))
   rownames(df) <- methods
   colnames(df) <- names(scores_interStrength)
   for(interStrength in names(scores_interStrength)) {
@@ -404,7 +404,7 @@ if("tau" %in% plotsReady) {
 
 # JOINT PLOT
 # ------------------------------------------------------------------------------
-p_joint <- ggarrange(p_k, p_tau, p_nenv, p_nsubenvs, p_interType, p_interMean, p_interStrength, p_tau, p_nenv, 
+p_joint <- ggarrange(p_p, p_k, p_tau, p_n, p_nenv, p_nsubenvs, p_interType, p_interMean, p_interStrength, 
           ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom")
 p_joint
 setwd(paste0(wdir, "fig/subenv"))

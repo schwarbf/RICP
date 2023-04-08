@@ -59,7 +59,7 @@ for(n in ns) {
   # run simulations
   clusterExport(cl, "n")
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = 5, k = 2, nenv = 10, renv = c(n, n), rBeta = c(-5, 5), tau = 0.5,
+    runSimRICP(p = 6, k = 2, nenv = 10, renv = c(n, n), rBeta = c(-5, 5), tau = 0.5,
                alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
                subenvs = T, nsubenvs = 30,
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",

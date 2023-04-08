@@ -83,7 +83,7 @@ for(metric in metrics) {
 
 # saving as .RData-file
 setwd(paste0(wdir, "res"))
-save(scores, file = "scores_comparisonOfMethods_woSubenv.RData")
+save(scores, file = "scores_comparisonOfMethods_nsubenv.RData")
 
 # PLOTS
 # ------------------------------------------------------------------------------
@@ -137,8 +137,8 @@ for(metric in metrics) {
     iter <- iter + 1
   }
   
-  # setwd(paste0(wdir, "fig"))
-  # ggsave(paste0("compMethods_", metric, "_woSubenv.png"), dpi = "retina", width = 13, height = 10, units = "cm", device = "png")
+  setwd(paste0(wdir, "fig"))
+  ggsave(paste0("compMethods_", metric, ".png"), dpi = "retina", width = 13, height = 10, units = "cm", device = "png")
 }
 
 
