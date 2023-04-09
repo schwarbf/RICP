@@ -54,9 +54,9 @@ clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
 
 # running simulation in parallel
 res <- parLapply(cl, 1:nsim, function(sim) {
-  runSimRICP(p = 6, k = 2, nenv = 30, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
-             alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
-             subenvs = F, nsubenvs = 30,
+  runSimRICP(p = 5, k = 2, nenv = 100, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+             alpha = 0.05, interType = "do", interMean = 2, interStrength = 10,
+             subenvs = F, nsubenvs = 30, test = "lme4",
              methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
              "nonlinearICP", "RICP"))
   })
@@ -83,7 +83,7 @@ for(metric in metrics) {
 
 # saving as .RData-file
 setwd(paste0(wdir, "res"))
-save(scores, file = "scores_comparisonOfMethods_nsubenv.RData")
+save(scores, file = "scores_comparisonOfMethods.RData")
 
 # PLOTS
 # ------------------------------------------------------------------------------

@@ -58,7 +58,12 @@ simDAG <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 5),
   for(env in 1:nenv) {
     if(env != 1) {
       type <- sample(interType, 1)
-      interInd[[env]] <- sample(1:p, 1)
+      numInter <- sample(c("one", "multiple"), prob = c(1, 0))
+      if(numInter == "one") {
+        interInd[[env]] <- sample(1:p, 1)
+      } else{
+        interInd[[env]] <- sample(1:p, p - 2)
+      }
       interMean <- if(length(interMean) > 1) sample(interMean, size = 1) else interMean
       interStrength <- if(length(interStrength) > 1) sample(interStrength, size = 1) else interStrength
       interSig <- interMean + interStrength*runif(1)

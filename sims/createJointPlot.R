@@ -22,7 +22,7 @@ if("florianschwarb" %in% Sys.info()){
 # ------------------------------------------------------------------------------
 # LOADING DATA
 # ------------------------------------------------------------------------------
-setwd(paste0(wdir, "res/subenv"))
+setwd(paste0(wdir, "res/subenv/6"))
 files <- c("scores_p.RData", "scores_k.RData", "scores_n.RData", "scores_nsubenvs.RData", 
            "scores_interMean.RData", "scores_interTypes.RData", "scores_k.RData", 
            "scores_nenv.RData", "scores_tau.RData", "scores_interStrength.RData")
@@ -37,7 +37,7 @@ rm(scoresAll)
 # PLOTTING
 # ------------------------------------------------------------------------------
 plotsReady <- c("p", "k", "n", "nsubenvs", "interType", "interMean", "interStrength", "nenv", "tau")
-metric <- "FWER" # successProbability, avgJaccard, FWER
+metric <- "avgJaccard" # successProbability, avgJaccard, FWER
 
 metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"AVG. JACCARD SIMILARITY"} else {"FWER"}
 
@@ -407,7 +407,7 @@ if("tau" %in% plotsReady) {
 p_joint <- ggarrange(p_p, p_k, p_tau, p_n, p_nenv, p_nsubenvs, p_interType, p_interMean, p_interStrength, 
           ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom")
 p_joint
-setwd(paste0(wdir, "fig/subenv"))
+setwd(paste0(wdir, "fig/subenv/6"))
 ggexport(p_joint, filename = paste0("jointPlot_RICP_", metric, ".pdf"))
 
 

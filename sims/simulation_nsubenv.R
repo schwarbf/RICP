@@ -59,9 +59,9 @@ for(nsubenv in nsubenvs) {
   # run simulations
   clusterExport(cl, "nsubenv")
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = 6, k = 2, nenv = 10, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+    runSimRICP(p = 5, k = 2, nenv = 30, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
                alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
-               subenvs = T, nsubenvs = nsubenv,
+               subenvs = T, nsubenvs = nsubenv, test = "LRT-lme4", 
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
                            "nonlinearICP", "RICP"))
   })

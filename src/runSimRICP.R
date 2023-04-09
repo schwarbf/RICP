@@ -35,6 +35,14 @@
 #' @param methods vector: The methods for which the causal discovery algorithm 
 #'    should be run. Choose from 'random', 'pooled regression', 'GES', 'LinGAM', 
 #'    'ICP', 'nonlinearICP' and 'RICP'
+#' @param test string: If subenvs is TRUE, then test choices are "LRT-lme4" (default), 
+#'   "LRT-nlme" or "Wald-test". The difference mostly lies in either the underlying 
+#'   test (LRT vs Wald-test) and the package used to fit the LMM. The 'lme4' package 
+#'   does not allow for concrete specification of the structure of the covariance 
+#'   matrices for the noise and the random effects whereas 'nlme' does. The 
+#'   drawback is that 'nlme' is much slower. 'lme4' fits a generic (unstructured) 
+#'   covariance matrix. If subenvs is FALSE, then one can only specify the 
+#'   package "lme4" or "nmle". Default is "LRT-lme4".
 #' 
 #' @return list: Contains the following objects
 #'    DAG matrix: p x p adjacency matrix of the random DAG used.
@@ -53,7 +61,8 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
                        tau = 1, alpha = 0.05, interType = "do",
                        interMean = c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10), 
                        interStrength = c(0.1, 0.2, 0.5, 1, 2, 5, 10), 
-                       subenvs = FALSE, nsubenvs = NULL, methods = "RICP") {
+                       subenvs = FALSE, nsubenvs = NULL, methods = "RICP", 
+                       test = "LRT-lme4") {
   # simulate a DAG
   if(subenvs) {
     tmp <- simDAGwsubenvs(p = p, k = k, nenv = nenv, nsubenvs = nsubenvs, 
@@ -191,7 +200,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
     if("RICP" %in% methods) {
       RICP.fit <- RICP(X, Y, ExpIndRICP, alpha = alpha, subenvs = subenvs, 
                        showAcceptedSets = F, showProgress = F, stopIfEmpty = T, 
-                       "LRT-lme4")
+                       test = test)
       if(is.null(RICP.fit$estimate)) {
         RICP.accep[[i]] <- integer(0)
       } else{

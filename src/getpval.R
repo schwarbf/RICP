@@ -62,8 +62,10 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
     # estimate 'beta + b' on single environment
     formLM <- as.formula(paste("Y ~ ", paste(cols[-1], collapse= "+"), " -1 "))
     lm.fit <- lm(formLM, data = data[indEnv, , drop = FALSE])
-    confInt_betaPlusB <- confint(lm.fit, alpha = alphaBonfCor/2)
-    colnames(confInt_betaPlusB) <- c("lower", "upper")
+    # confInt_betaPlusB <- confint(lm.fit, alpha = alphaBonfCor/2)
+    # colnames(confInt_betaPlusB) <- c("lower", "upper")
+    confInt_beta_lm <- confint(lm.fit, alpha = alphaBonfCor/2)
+    colnames(confInt_beta_lm) <- c("lower", "upper")
     
     # estimate tau on rest of environments
     if(test == "lme4"){
@@ -73,10 +75,12 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
                                       "-1 | ExpIndTest)"))
       lmer.fit <- lmer(formLMMTest, data = data[-indEnv, ], REML = TRUE) %>% 
         suppressMessages()
-      confInt_beta <- confint(lmer.fit, parm = "beta_", method = "Wald", 
-                              level = 1 - alphaBonfCor/2) %>% suppressMessages()
-      colnames(confInt_beta) <- c("lower", "upper")
-      tauHat <- VarCorr(lmer.fit)$ExpIndTest[1, 1] %>% sqrt()
+      # confInt_beta <- confint(lmer.fit, parm = "beta_", method = "Wald",
+      #                         level = 1 - alphaBonfCor/2) %>% suppressMessages()
+      confInt_beta_lmm <- confint(lmer.fit, parm = "beta_", method = "Wald",
+                                  level = 1 - alphaBonfCor/2) %>% suppressMessages()
+      colnames(confInt_beta_lmm) <- c("lower", "upper")
+      # tauHat <- VarCorr(lmer.fit)$ExpIndTest[1, 1] %>% sqrt()
     } else if(test == "nmle") {
       ExpIndTest <<- ExpInd[-which(ExpInd == env)]
       formLMMTest <- as.formula(paste("Y ~ ", paste(cols[-1], collapse= "+"), " -1"))
@@ -87,27 +91,35 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
       #                   weights = varFixedTest, data = data[-indEnv, ], nrestarts = 5)
       lme.fit <- lmeFit(formLMMTest, random = list(ExpIndTest = pdIdent(formRdmTest)),
                         weights = NULL, data = data[-indEnv, ], nrestarts = 5)
-      confInt_beta <- intervals(lme.fit, which = "fixed", level = 1- alphaBonfCor/2)$fixed %>%
+      # confInt_beta <- intervals(lme.fit, which = "fixed", level = 1- alphaBonfCor/2)$fixed %>%
+      #   as.data.frame() %>%
+      #   select(c("lower", "upper"))
+      confInt_beta_lmm <- intervals(lme.fit, which = "fixed", level = 1- alphaBonfCor/2)$fixed %>%
         as.data.frame() %>%
         select(c("lower", "upper"))
-      tauHat <- VarCorr(lme.fit)[1, "StdDev", drop = FALSE] %>% as.double()
+      # tauHat <- VarCorr(lme.fit)[1, "StdDev", drop = FALSE] %>% as.double()
       rm(ExpIndTest, envir = .GlobalEnv)
     } else{
       stop(paste0("Test ", test, " is currently not implemented."))
     }
     
     # construct confidence intervals for '(beta + b) - b'
-    confInt_betaPlusBMinusB <- confInt_beta
-    confInt_betaPlusBMinusB[, "lower"] <- confInt_betaPlusB[, "lower"] # - qnorm(1-alphaBonfCor/4)*tauHat
-    confInt_betaPlusBMinusB[, "upper"] <- confInt_betaPlusB[, "upper"] # + qnorm(1-alphaBonfCor/4)*tauHat
+    # confInt_betaPlusBMinusB <- confInt_beta
+    # confInt_betaPlusBMinusB[, "lower"] <- confInt_betaPlusB[, "lower"] # - qnorm(1-alphaBonfCor/4)*tauHat
+    # confInt_betaPlusBMinusB[, "upper"] <- confInt_betaPlusB[, "upper"] # + qnorm(1-alphaBonfCor/4)*tauHat
     
     # check if 'confInt_beta' and 'confInt_betaPlusBMinusB' overlaps
+    # checkOverlap <- function(i) {
+    #   confInt_betaPlusBMinusB[i, "upper"] < confInt_beta[i, "lower"] || 
+    #     confInt_beta[i, "upper"] < confInt_betaPlusBMinusB[i, "lower"]
+    # }
     checkOverlap <- function(i) {
-      confInt_betaPlusBMinusB[i, "upper"] < confInt_beta[i, "lower"] || 
-        confInt_beta[i, "upper"] < confInt_betaPlusBMinusB[i, "lower"]
+      confInt_beta_lm[i, "upper"] < confInt_beta_lmm[i, "lower"] ||
+        confInt_beta_lmm[i, "upper"] < confInt_beta_lm[i, "lower"]
     }
-    checkOverlapOut <- sapply(1:nrow(confInt_beta), checkOverlap) %>% sum()
-    if(is.na(checkOverlapOut)) {browser()}
+    # checkOverlapOut <- sapply(1:nrow(confInt_beta), checkOverlap) %>% sum()
+    browser()
+    checkOverlapOut <- sapply(1:nrow(confInt_beta_lm), checkOverlap) %>% sum()
     if(checkOverlapOut > 0) {notRejected <- FALSE}
     i <- i + 1
   }
