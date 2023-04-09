@@ -26,6 +26,10 @@
 #' @param interStrength vector: This corresponds to the strength of the intervention. 
 #'    For each intervention we sample the strength from 'interStrength' and 
 #'    pre-multiply the intervention with it. 
+#' @param nInter string: If "one" (default) then only one predictor variable per
+#'    environment is being intervened on. If "multiple" the intervention is on 
+#'    multiple predictors in the same environment. The number of interventions in
+#'    this case is sampled uniformly from '1:(p-2)'. 
 #' 
 #' @return list: Contains the following elements: 
 #'    Adjacency matrix: A p x p adjacency matrix corresponding to the DAG.
@@ -40,7 +44,8 @@
 simDAGwsubenvs <- function(p = 4, k = 2, nenv = 10, nsubenvs = 10, renv = c(50, 80), 
                            rBeta = c(-5, 5), tau = 1, interType = "do",
                            interMean = c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10), 
-                           interStrength = c(0.1, 0.2, 0.5, 1, 2, 5, 10)) {
+                           interStrength = c(0.1, 0.2, 0.5, 1, 2, 5, 10), 
+                           nInter = "one") {
   seed <- sample(1:1000, 1)
   set.seed(seed)
   
@@ -67,6 +72,16 @@ simDAGwsubenvs <- function(p = 4, k = 2, nenv = 10, nsubenvs = 10, renv = c(50, 
   for(env in 1:nenv) {
     if(env != 1) {
       type <- sample(interType, 1)
+      if(nInter == "one") {
+        interInd[[env]] <- sample(1:p, 1)
+      } else{
+        if(p - 2 > 0){
+          nInter <- sample(1:(p-2), 1)
+          interInd[[env]] <- sample(1:p, nInter)
+        } else{
+          interInd[[env]] <- sample(1:p, 1)
+        }
+      }
       interInd[[env]] <- sample(1:p, size = 1)
       interMean <- if(length(interMean) > 1) sample(interMean, size = 1) else interMean
       interStrength <- if(length(interStrength) > 1) sample(interStrength, size = 1) else interStrength

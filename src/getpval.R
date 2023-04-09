@@ -118,7 +118,6 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
         confInt_beta_lmm[i, "upper"] < confInt_beta_lm[i, "lower"]
     }
     # checkOverlapOut <- sapply(1:nrow(confInt_beta), checkOverlap) %>% sum()
-    browser()
     checkOverlapOut <- sapply(1:nrow(confInt_beta_lm), checkOverlap) %>% sum()
     if(checkOverlapOut > 0) {notRejected <- FALSE}
     i <- i + 1

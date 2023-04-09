@@ -25,6 +25,10 @@
 #' @param interStrength vector: This corresponds to the strength of the intervention. 
 #'    For each intervention we sample the strength from 'interStrength' and 
 #'    pre-multiply the intervention with it. 
+#' @param nInter string: If "one" (default) then only one predictor variable per
+#'    environment is being intervened on. If "multiple" the intervention is on 
+#'    multiple predictors in the same environment. The number of interventions in
+#'    this case is sampled uniformly from '1:(p-2)'. 
 #' @param subenvs boolean: If TRUE then the RICP algorithm for subenvironments is
 #'    used. 
 #' @param nsubenvs integer/list: Each subenvironment corresponds to a realization 
@@ -61,18 +65,18 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
                        tau = 1, alpha = 0.05, interType = "do",
                        interMean = c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10), 
                        interStrength = c(0.1, 0.2, 0.5, 1, 2, 5, 10), 
-                       subenvs = FALSE, nsubenvs = NULL, methods = "RICP", 
-                       test = "LRT-lme4") {
+                       nInter = "one", subenvs = FALSE, nsubenvs = NULL, 
+                       methods = "RICP", test = "LRT-lme4") {
   # simulate a DAG
   if(subenvs) {
     tmp <- simDAGwsubenvs(p = p, k = k, nenv = nenv, nsubenvs = nsubenvs, 
                           renv = renv, rBeta = rBeta, tau = tau, 
                           interType = interType, interMean = interMean, 
-                          interStrength = interStrength)
+                          interStrength = interStrength, nInter = nInter)
   } else{
     tmp <- simDAG(p = p, k = k, nenv = nenv, renv = renv, rBeta = rBeta, tau = tau, 
                   interType = interType, interMean = interMean, 
-                  interStrength = interStrength)
+                  interStrength = interStrength, nInter = nInter)
   }
   data <- tmp$X
   adjacencyMat <- tmp$Adjacency

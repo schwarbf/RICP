@@ -56,7 +56,7 @@ clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
 res <- parLapply(cl, 1:nsim, function(sim) {
   runSimRICP(p = 5, k = 2, nenv = 100, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
              alpha = 0.05, interType = "do", interMean = 2, interStrength = 10,
-             subenvs = F, nsubenvs = 30, test = "lme4",
+             nInter = "one", subenvs = F, nsubenvs = 30, test = "lme4",
              methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
              "nonlinearICP", "RICP"))
   })
