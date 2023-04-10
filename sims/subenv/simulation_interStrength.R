@@ -94,7 +94,7 @@ for(interStrength in interStrengths) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res"))
+setwd(paste0(wdir, "res/subenv"))
 save(scoresAll, file = "scores_interStrength.RData")
 
 # PLOTS
@@ -133,7 +133,7 @@ p_interStrength <- ggplot(df_melted, aes(x = variable, y = value, group = method
   xlab("INTERVENTION STRENGTH") +
   ylab("SUCCESS PROBABILITY")
 
-setwd(paste0(wdir, "fig"))
+setwd(paste0(wdir, "fig/subenv"))
 ggsave(paste0("interStrength_", metric, ".pdf"), width = 6, height = 5)
 
 

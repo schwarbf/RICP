@@ -94,7 +94,7 @@ for(tau in taus) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res"))
+setwd(paste0(wdir, "res/subenv"))
 save(scoresAll, file = "scores_tau.RData")
 
 # PLOTS
@@ -133,7 +133,7 @@ p_tau <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour =
   xlab("TAU") +
   ylab("SUCCESS PROBABILITY")
 
-setwd(paste0(wdir, "fig"))
+setwd(paste0(wdir, "fig/subenv"))
 ggsave(paste0("tau_", metric, ".pdf"), width = 6, height = 5)
 
 

@@ -59,7 +59,7 @@ for(nInter in nInters) {
   clusterExport(cl, "nInter")
   res <- parLapply(cl, 1:nsim, function(sim) {
     runSimRICP(p = 5, k = 2, nenv = 100, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
-               alpha = 0.05, interType = "do", interMean = interMean, interStrength = 10,
+               alpha = 0.05, interType = "do", interMean = 2, interStrength = 10,
                nInter = nInter, subenvs = F, nsubenvs = 30, test = "lme4",
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
                            "nonlinearICP", "RICP"))
@@ -93,7 +93,7 @@ for(nInter in nInters) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res"))
+setwd(paste0(wdir, "res/wsubenv"))
 save(scoresAll, file = "scores_nInter.RData")
 
 # PLOTS
@@ -132,7 +132,7 @@ p_nInter <- ggplot(df_melted, aes(x = variable, y = value, group = method, colou
   xlab("NUMBER OF INTERVENTIONS PER ENVIRONMENT") +
   ylab("SUCCESS PROBABILITY")
 
-setwd(paste0(wdir, "fig"))
+setwd(paste0(wdir, "fig/wsubenv"))
 ggsave(paste0("nInter_", metric, ".pdf"), width = 6, height = 5)
 
 

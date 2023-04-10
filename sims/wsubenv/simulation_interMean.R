@@ -94,7 +94,7 @@ for(interMean in interMeans) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res"))
+setwd(paste0(wdir, "res/subenv"))
 save(scoresAll, file = "scores_interMean.RData")
 
 # PLOTS
@@ -133,7 +133,7 @@ p_interMean <- ggplot(df_melted, aes(x = variable, y = value, group = method, co
   xlab("INTERVENTION MEAN") +
   ylab("SUCCESS PROBABILITY")
 
-setwd(paste0(wdir, "fig"))
+setwd(paste0(wdir, "fig/wsubenv"))
 ggsave(paste0("interMean_", metric, ".pdf"), width = 6, height = 5)
 
 

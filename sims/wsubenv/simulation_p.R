@@ -94,7 +94,7 @@ for(p in ps) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res"))
+setwd(paste0(wdir, "res/wsubenv"))
 save(scoresAll, file = "scores_p.RData")
 
 # PLOTS
@@ -133,7 +133,7 @@ p_p <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = m
   xlab("p") +
   ylab("SUCCESS PROBABILITY")
 
-setwd(paste0(wdir, "fig"))
+setwd(paste0(wdir, "fig/wsubenv"))
 ggsave(paste0("p_", metric, ".pdf"), width = 6, height = 5)
 
 

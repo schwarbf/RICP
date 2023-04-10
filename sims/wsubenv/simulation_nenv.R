@@ -96,7 +96,7 @@ for(nenv in nenvs) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res"))
+setwd(paste0(wdir, "res/wsubenv"))
 save(scoresAll, file = "scores_nenv.RData")
 
 # PLOTS
@@ -135,7 +135,7 @@ p_nenv <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour 
   xlab("NUMBER OF ENVIRONMENTS") +
   ylab("SUCCESS PROBABILITY")
 
-setwd(paste0(wdir, "fig"))
+setwd(paste0(wdir, "fig/wsubenv"))
 ggsave(paste0("nenv_", metric, ".pdf"), width = 6, height = 5)
 
 

@@ -94,7 +94,7 @@ for(interType in interTypes) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res"))
+setwd(paste0(wdir, "res/wsubenv"))
 save(scoresAll, file = "scores_interTypes.RData")
 
 # PLOTS
@@ -133,7 +133,7 @@ p_interType <- ggplot(df_melted, aes(x = variable, y = value, group = method,
   xlab("INTERVENTION TYPE") +
   ylab("SUCCESS PROBABILITY")
 
-setwd(paste0(wdir, "fig"))
+setwd(paste0(wdir, "fig/wsubenv"))
 ggsave(paste0("interType_", metric, ".pdf"), width = 6, height = 5)
 
 
