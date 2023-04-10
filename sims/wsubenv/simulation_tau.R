@@ -36,6 +36,7 @@ source("runSimRICP.R")
 # ------------------------------------------------------------------------------
 # parameters
 taus <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10)
+nsim <- 50
 
 # initializing the cluster
 if("Linux" %in% Sys.info()) {
@@ -60,7 +61,7 @@ for(tau in taus) {
   res <- parLapply(cl, 1:nsim, function(sim) {
     runSimRICP(p = 5, k = 2, nenv = 100, renv = c(80, 100), rBeta = c(-5, 5), tau = tau,
                alpha = 0.05, interType = "do", interMean = 2, interStrength = 10,
-               nInter = "multiple", subenvs = F, nsubenvs = 30, test = "LRT-lme4", 
+               nInter = "multiple", subenvs = F, nsubenvs = 30, test = "lme4", 
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
                            "nonlinearICP", "RICP"))
   })

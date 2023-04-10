@@ -36,6 +36,7 @@ source("runSimRICP.R")
 # ------------------------------------------------------------------------------
 # parameters
 taus <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10)
+nsim <- 50
 
 # initializing the cluster
 if("Linux" %in% Sys.info()) {
