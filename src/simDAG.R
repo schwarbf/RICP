@@ -67,8 +67,13 @@ simDAG <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 5),
         interInd[[env]] <- sample(1:p, 1)
       } else{
         if(p - 2 > 0){
-          nInter <- sample(1:(p-2), 1)
-          interInd[[env]] <- sample(1:p, nInter)
+          numInter <- sample(c("one", "multiple"), prob = c(1/6, 5/6))
+          if(numInter == "one") {
+            interInd[[env]] <- sample(1:p, 1)
+          } else{
+            nInter <- sample(1:(p-2), 1)
+            interInd[[env]] <- sample(1:p, nInter) 
+          }
         } else{
           interInd[[env]] <- sample(1:p, 1)
         }

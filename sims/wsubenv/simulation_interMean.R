@@ -1,5 +1,5 @@
 # ******************************************************************************
-#                          SIMULATION: INCREASING p
+#                          SIMULATION: INCREASING TAU
 # ******************************************************************************
 
 # ------------------------------------------------------------------------------
@@ -32,10 +32,10 @@ source("simDAGwsubenvs.R")
 source("runSimRICP.R")
 
 # ------------------------------------------------------------------------------
-# SIMULATION: INCREASING p
+# SIMULATION: INCREASING TAU
 # ------------------------------------------------------------------------------
 # parameters
-ps <- c(2, 3, 4, 5, 6)
+interMeans <- c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 50)
 nsim <- 50
 
 # initializing the cluster
@@ -55,13 +55,13 @@ clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
 
 # running simulation in parallel
 scoresAll <- list()
-for(p in ps) {
-  k <- if(p == 2) 1 else 2
-  clusterExport(cl, c("k", "p"))
+for(interMean in interMeans) {
+  # run simulations
+  clusterExport(cl, "interMean")
   res <- parLapply(cl, 1:nsim, function(sim) {
-    runSimRICP(p = p, k = k, nenv = 100, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
-               alpha = 0.05, interType = "do", interMean = 2, interStrength = 10,
-               nInter = "one", subenvs = F, nsubenvs = 30, test = "LRT-lme4",
+    runSimRICP(p = 5, k = 2, nenv = 100, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+               alpha = 0.05, interType = "do", interMean = interMean, interStrength = 10,
+               nInter = "multiple", subenvs = F, nsubenvs = 30, test = "LRT-lme4",
                methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
                            "nonlinearICP", "RICP"))
   })
@@ -82,12 +82,12 @@ for(p in ps) {
     board[, "avg"] <- sapply(1:length(methods), function(i) {mean(board[i, 1:nsim])})
     scores[[metric]] <- board
   }
-  scoresAll[[as.character(p)]] <- scores
+  scoresAll[[as.character(interMean)]] <- scores
   
   # progress bar
-  cat(paste0("*** ", round(100 * which(ps == p)/length(ps)), 
-             "% complete: tested ", which(ps == p), " out of ", length(ps), 
-             " 'p's \n"))
+  cat(paste0("*** ", round(100 * which(interMeans == interMean)/length(interMeans)), 
+             "% complete: tested ", which(interMeans == interMean), " out of ", length(interMeans), 
+             " intervention means \n"))
 }
 
 # shutting down cluster
@@ -95,25 +95,25 @@ stopCluster(cl)
 
 # saving as .RData-file
 setwd(paste0(wdir, "res"))
-save(scoresAll, file = "scores_p.RData")
+save(scoresAll, file = "scores_interMean.RData")
 
 # PLOTS
 # ------------------------------------------------------------------------------
 methods <- rownames(scoresAll[[1]][["FWER"]])
-df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(ps)))
+df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(interMeans)))
 rownames(df) <- methods
 colnames(df) <- names(scoresAll)
-for(p in names(scoresAll)) {
+for(interMean in names(scoresAll)) {
   for(method in methods) {
-    df[method, p] <- scoresAll[[p]][["successProbability"]][method, "avg"]
+    df[method, interMean] <- scoresAll[[interMean]][["successProbability"]][method, "avg"]
   }
 }
 df$method <- methods
 rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
 df$method <- factor(df$method, levels = rowOrder)
 df_melted <- melt(df, id = "method")
-p_p <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
-                             shape = method)) +
+p_interMean <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
+                               shape = method)) +
   geom_point(size = 4) +
   geom_line(size = 0.3) +
   expand_limits(y = 1) +
@@ -122,19 +122,19 @@ p_p <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = m
         panel.border = element_rect(colour = "black", fill =NA, size = 1), 
         legend.key=element_blank(), 
         legend.position = "right") +
-  guides(color = guide_legend(title = 'p')) + 
-  scale_colour_manual(name = 'p', 
+  guides(color = guide_legend(title = 'intervention mean')) + 
+  scale_colour_manual(name = 'intervention mean', 
                       labels = rowOrder, 
                       values = c('yellow3', 'orange', 'mediumpurple1', 'purple4', 
                                           'blue', 'brown', 'red')) + 
-  scale_shape_manual(name = 'p', 
+  scale_shape_manual(name = 'intervention mean', 
                      labels = rowOrder, 
                      values = c(1, 2, 3, 4, 5, 6, 7)) +
-  xlab("p") +
+  xlab("INTERVENTION MEAN") +
   ylab("SUCCESS PROBABILITY")
 
 setwd(paste0(wdir, "fig"))
-ggsave(paste0("p_", metric, ".pdf"), width = 6, height = 5)
+ggsave(paste0("interMean_", metric, ".pdf"), width = 6, height = 5)
 
 
 

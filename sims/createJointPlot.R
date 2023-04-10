@@ -22,10 +22,10 @@ if("florianschwarb" %in% Sys.info()){
 # ------------------------------------------------------------------------------
 # LOADING DATA
 # ------------------------------------------------------------------------------
-setwd(paste0(wdir, "res/subenv/6"))
-files <- c("scores_p.RData", "scores_k.RData", "scores_n.RData", "scores_nsubenvs.RData", 
+setwd(paste0(wdir, "res/wsubenv/oneInter"))
+files <- c("scores_p.RData", "scores_k.RData", "scores_n.RData", "scores_nenv.RData", 
            "scores_interMean.RData", "scores_interTypes.RData", "scores_k.RData", 
-           "scores_nenv.RData", "scores_tau.RData", "scores_interStrength.RData")
+           "scores_nInter.RData", "scores_interStrength.RData", "scores_tau.RData")
 for(file in files){
   load(file = file)
   fileName <- strsplit(file, ".RData")[[1]]
@@ -36,8 +36,8 @@ rm(scoresAll)
 # ------------------------------------------------------------------------------
 # PLOTTING
 # ------------------------------------------------------------------------------
-plotsReady <- c("p", "k", "n", "nsubenvs", "interType", "interMean", "interStrength", "nenv", "tau")
-metric <- "avgJaccard" # successProbability, avgJaccard, FWER
+plotsReady <- c("p", "k", "n", "tau", "interType", "interMean", "interStrength", "nInter", "nenv")
+metric <- "successProbability" # successProbability, avgJaccard, FWER
 
 metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"AVG. JACCARD SIMILARITY"} else {"FWER"}
 
@@ -156,6 +156,46 @@ if("interType" %in% plotsReady) {
                                                                  values = c(1, 2, 3, 4, 5, 6, 7)) +
     scale_x_discrete(labels = c("do", "soft", "simult. noise")) +
     xlab("INTERVENTION TYPE") +
+    ylab(metricName)
+  if(metric == "FWER") {
+    p_interType <- p_interType + geom_hline(yintercept = 0.05, linetype = 3)
+  }
+}
+
+# NUMBER OF INTERVENTIONS
+# ------------------------------------------------------------------------------
+if("nInter" %in% plotsReady) {
+  methods <- rownames(scores_nInter[[1]][[metric]])
+  df <- data.frame(matrix(NA, nrow = length(methods), ncol = length(scores_nInter)))
+  rownames(df) <- methods
+  colnames(df) <- names(scores_nInter)
+  for(numInter in names(scores_nInter)) {
+    for(method in methods) {
+      df[method, numInter] <- scores_nInter[[numInter]][[metric]][method, "avg"]
+    }
+  }
+  df$method <- methods
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- factor(df$method, levels = rowOrder)
+  df_melted <- melt(df, id = "method")
+  p_nInter <- ggplot(df_melted, aes(x = variable, y = value, group = method, 
+                                    colour = method, shape = method)) +
+    geom_point(size = 2) +
+    geom_line(linewidth = 0.3) +
+    expand_limits(y = 1) +
+    theme(panel.background = element_blank(), 
+          panel.grid = element_blank(), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          legend.key=element_blank(), 
+          legend.position = "right") +
+    guides(color = guide_legend(title = 'Legend')) + 
+    scale_colour_manual(name = 'Legend', 
+                        labels = rowOrder, 
+                        values = c('yellow2', 'orange', 'mediumpurple1',  'green3', 'blue', 'cyan1', 'red')) + 
+    scale_shape_manual(name = 'Legend', 
+                       labels = rowOrder, 
+                       values = c(1, 2, 3, 4, 5, 6, 7)) +
+    xlab("# INTERVENTIONS/ENVIRONMENT") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interType <- p_interType + geom_hline(yintercept = 0.05, linetype = 3)
@@ -404,10 +444,10 @@ if("tau" %in% plotsReady) {
 
 # JOINT PLOT
 # ------------------------------------------------------------------------------
-p_joint <- ggarrange(p_p, p_k, p_tau, p_n, p_nenv, p_nsubenvs, p_interType, p_interMean, p_interStrength, 
+p_joint <- ggarrange(p_p, p_k, p_n, p_tau, p_nenv, p_nInter, p_interType, p_interMean, p_interStrength, 
           ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom")
 p_joint
-setwd(paste0(wdir, "fig/subenv/6"))
+setwd(paste0(wdir, "fig/wsubenv/oneInter"))
 ggexport(p_joint, filename = paste0("jointPlot_RICP_", metric, ".pdf"))
 
 
