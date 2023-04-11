@@ -37,9 +37,9 @@ rm(scoresAll)
 # PLOTTING
 # ------------------------------------------------------------------------------
 plotsReady <- c("p", "k", "n", "tau", "interType", "interMean", "interStrength", "nInter", "nenv")
-metric <- "successProbability" # successProbability, avgJaccard, FWER
+metric <- "avgJaccard" # successProbability, avgJaccard, FWER
 
-metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"AVG. JACCARD SIMILARITY"} else {"FWER"}
+metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"JACCARD SIMILARITY"} else {"FWER"}
 
 # INTERVENTION MEAN
 # ------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ if("interMean" %in% plotsReady) {
                                               scale_shape_manual(name = 'Legend', 
                                                                  labels = rowOrder, 
                                                                  values = c(1, 2, 3, 4, 5, 6, 7)) +
-    xlab("INTERVENTION MEAN") +
+    xlab("INTER. MEAN") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interMean <- p_interMean + geom_hline(yintercept = 0.05, linetype = 3)
@@ -114,7 +114,7 @@ if("interStrength" %in% plotsReady) {
                                               scale_shape_manual(name = 'Legend', 
                                                                  labels = rowOrder, 
                                                                  values = c(1, 2, 3, 4, 5, 6, 7)) +
-    xlab("INTERVENTION STRENGTH") +
+    xlab("INTER. STRENGTH") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interStrength <- p_interStrength + geom_hline(yintercept = 0.05, linetype = 3)
@@ -155,7 +155,7 @@ if("interType" %in% plotsReady) {
                                                                  labels = rowOrder, 
                                                                  values = c(1, 2, 3, 4, 5, 6, 7)) +
     scale_x_discrete(labels = c("do", "soft", "simult. noise")) +
-    xlab("INTERVENTION TYPE") +
+    xlab("INTER. TYPE") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interType <- p_interType + geom_hline(yintercept = 0.05, linetype = 3)
@@ -195,7 +195,7 @@ if("nInter" %in% plotsReady) {
     scale_shape_manual(name = 'Legend', 
                        labels = rowOrder, 
                        values = c(1, 2, 3, 4, 5, 6, 7)) +
-    xlab("# INTERVENTIONS/ENVIRONMENT") +
+    xlab("# INTERVENTIONS/ENV.") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interType <- p_interType + geom_hline(yintercept = 0.05, linetype = 3)

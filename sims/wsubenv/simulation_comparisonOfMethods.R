@@ -82,7 +82,7 @@ for(metric in metrics) {
 }
 
 # saving as .RData-file
-setwd(paste0(wdir, "res/subenv"))
+setwd(paste0(wdir, "res/wsubenv"))
 save(scores, file = "scores_comparisonOfMethods.RData")
 
 # PLOTS

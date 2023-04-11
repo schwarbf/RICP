@@ -19,6 +19,7 @@ The following arguments can be changed in the R script:
 - `renv` Vector that contains two elements: The minimal and maximal number of observations per subenvironment. Default is `c(80, 100)`.
 - `rBeta`: Contains two elements: The minimal and maximal bounds from which to unifromly sample beta from. Default is `c(-5, 5)`. 
 - `tau`: The variance parameter of the random effects. This parameter specifies how much we allow the causal effect to vary from environment to environment. Default is `0.5`. 
+-  ´nInter´: If "one" (default) then only one predictor variable per environment is being intervened on. If "multiple" the intervention is on multiple predictors in the same environment. The number of interventions is either one (w/ probability 1/6) or multiple (w/ probability 5/6). The number of multiple interventions is sampled uniformly from '1:(p-2)'. 
 - `interType`: Choose from 'do', 'soft', simultaneous-noise' or 'relaxed-do'. Default is `do`. 
 - `interMean`: This corresponds to the mean of the intervention. For each intervention we sample the mean from 'interMean'. Default is `2`. 
 - `interStrength`: This corresponds to the strength of the intervention. For each intervention we sample the strength from 'interStrength' and pre-multiply the intervention with it. Default is `c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10)`. 

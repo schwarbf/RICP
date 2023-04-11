@@ -35,7 +35,7 @@ source("runSimRICP.R")
 # SIMULATION: INCREASING NUMBER OF SUBENVIRONMENTS
 # ------------------------------------------------------------------------------
 # parameters
-nsubenvs <- c(2, 5, 10, 30, 50, 100)
+nsubenvs <- c(2, 5, 10, 30, 50, 100, 200)
 nsim <- 50
 
 # initializing the cluster

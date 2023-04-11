@@ -94,7 +94,7 @@ for(interMean in interMeans) {
 stopCluster(cl)
 
 # saving as .RData-file
-setwd(paste0(wdir, "res/subenv"))
+setwd(paste0(wdir, "res/wsubenv"))
 save(scoresAll, file = "scores_interMean.RData")
 
 # PLOTS

@@ -107,18 +107,19 @@ simDAGwsubenvs <- function(p = 4, k = 2, nenv = 10, nsubenvs = 10, renv = c(50, 
       for(j in p:1) {
         X[rowInd, j] <- X[rowInd, j:p, drop = FALSE] %*% 
           (Beta[j, j:p] + B[[env]][[subenv]][j, j:p]) + eps[rowInd, j] 
-        if(env != 1 && j %in% interInd[[env]]) {
-          if(type == "do") {
-            X[rowInd, j] <- interSig
-          } else if(type == "soft") {
-            X[rowInd, j] <- X[rowInd, j] + interSig
+        if(env != 1) {
+          if (type != "simultaneous-noise" && j %in% interInd[[env]]) {
+            if(type == "do") {
+              X[rowInd, j] <- interSig
+            } else if(type == "soft") {
+              X[rowInd, j] <- X[rowInd, j] + interSig
+            } else if(type == "relaxed-do") {
+              X[rowInd, j] <- interMean + interStrength*runif(length(rowInd))
+            } else{
+              stop("Intervention type is not supported!")
+            }
           } else if(type == "simultaneous-noise") {
-            X[rowInd, j] <- X[rowInd, j:p, drop = FALSE] %*% 
-              (Beta[j, j:p] + B[[env]][[subenv]][j, j:p]) + interSig*eps[rowInd, j]
-          } else if(type == "relaxed-do") {
-            X[rowInd, j] <- interMean + interStrength*runif(length(rowInd))
-          } else{
-            stop("Intervention type is not supported!")
+            X[rowInd, j] <- X[rowInd, j] + interSig
           }
         }
       }
