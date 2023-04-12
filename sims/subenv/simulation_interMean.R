@@ -7,7 +7,7 @@
 # ------------------------------------------------------------------------------
 # load packages
 pkgs <- c("dplyr", "lme4", "nlme", "InvariantCausalPrediction", "nonlinearICP", 
-          "pcalg", "ggplot2", "reshape2", "doParallel", "tictoc")
+          "pcalg", "ggplot2", "reshape2", "doParallel")
 for(pkg in pkgs){
   if(!require(pkg, character.only = TRUE)) install.packages(pkg)
   library(pkg, character.only = TRUE)

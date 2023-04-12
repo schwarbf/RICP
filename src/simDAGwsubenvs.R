@@ -104,9 +104,9 @@ simDAGwsubenvs <- function(p = 4, k = 2, nenv = 10, nsubenvs = 10, renv = c(50, 
                               nrow = n[[env]][subenv], ncol = p)
       B[[env]][[subenv]] <- Sign
       B[[env]][[subenv]][ind] <- rnorm(length(Sign[ind]), sd = tau)
-      for(j in p:1) {
-        X[rowInd, j] <- X[rowInd, j:p, drop = FALSE] %*% 
-          (Beta[j, j:p] + B[[env]][[subenv]][j, j:p]) + eps[rowInd, j] 
+      for(j in 1:p) {
+        X[rowInd, j] <- X[rowInd, 1:j, drop = FALSE] %*% 
+          (Beta[1:j, j] + B[[env]][[subenv]][1:j, j]) + eps[rowInd, j] 
         if(env != 1) {
           if (type != "simultaneous-noise" && j %in% interInd[[env]]) {
             if(type == "do") {

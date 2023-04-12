@@ -225,7 +225,7 @@ runSimRICP <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 
     fwerCount <- 0
     jaccard <- c()
     for(i in 1:p) {
-      truePa <- which(adjacencyMat[i, ] == 1) %>% as.vector()
+      truePa <- which(adjacencyMat[, i] == 1) %>% as.vector()
       if(length(acceptedSets[[method]][[i]]) > 0) {
         fwerCount <- fwerCount + sapply(acceptedSets[[method]][[i]], 
                                         function(j) {!(j %in% truePa)}) %>% sum()
