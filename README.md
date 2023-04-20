@@ -1,4 +1,4 @@
-# Invariant Causal Prediction under Random Effects (RICP)
+# Invariant Causal Prediction under Random Effects (R-ICP)
 
 This repository contains the code to reproduce the results from the first part of my master thesis. This is an extension of the method [Invariant Causal Prediction (ICP)](https://www.jstor.org/stable/44682904) where the causal effect is still linear and is allowed to vary (randomly) from environment to environment. 
 

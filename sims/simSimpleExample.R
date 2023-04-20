@@ -106,6 +106,9 @@ for(env in envs) {
 }
 df$ExpInd <- ExpInd
 
+# colors 
+colorVals <- c('yellow2', 'orange', 'mediumpurple1',  'green3', 'blue', 'cyan1', 'red')
+
 # Y ~ X1
 ExpIndX1 <- unique(df[intersect(which(df[, "X1"] != interMean), which(df[, "ExpInd"] != 1)), "ExpInd"])
 rowIndX1 <- which(df[, "ExpInd"] %in% ExpIndX1)
@@ -117,11 +120,13 @@ p_X1 <- ggplot(df[rowIndX1, ], aes(x = X1, y = Y, group = ExpInd, color = factor
   geom_line(data = df_pred[which(df_pred$ExpInd == 1),  , drop = FALSE], aes(x = X1, y =YX1), color = "royalblue", linewidth = 1) +
   theme(panel.background = element_blank(), 
         panel.grid = element_blank(), 
-        panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+        panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
+        axis.title=element_text(size=9, face = "plain"),
         legend.key=element_blank(), 
         legend.position = "none") +
-  scale_color_manual(values = wes_palette("FantasticFox1", length(ExpIndX1), type = "continuous")) +
-  annotate(geom = "text", x = -Inf, y = Inf, hjust = -0.05, vjust = 2, label = "observational data", color = "royalblue")
+  # scale_color_manual(values = wes_palette("FantasticFox1", length(ExpIndX1), type = "continuous")) +
+  scale_colour_manual(values = colorVals[sample(1:length(colorVals), size = length(ExpIndX1))]) + 
+  annotate(geom = "text", x = -Inf, y = Inf, hjust = -0.05, vjust = 2, label = "observational data", color = "royalblue") 
 p_X1
 setwd(paste0(wdir, "fig/simpleExample"))
 ggsave("simpleExample_X1.pdf", width = 3, height = 2.5)
@@ -137,10 +142,12 @@ p_X2 <- ggplot(df[rowIndX2, ], aes(x = X2, y = Y, group = ExpInd, color = factor
   geom_line(data = df_pred[which(df_pred$ExpInd == 1),  , drop = FALSE], aes(x = X2, y =YX2), color = "royalblue", linewidth = 1) +
   theme(panel.background = element_blank(), 
         panel.grid = element_blank(), 
-        panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+        panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
+        axis.title=element_text(size=9, face = "plain"),
         legend.key=element_blank(), 
         legend.position = "none") +
-  scale_color_manual(values = wes_palette("FantasticFox1", length(ExpIndX2), type = "continuous")) +
+  # scale_color_manual(values = wes_palette("FantasticFox1", length(ExpIndX2), type = "continuous")) +
+  scale_colour_manual(values = colorVals[sample(1:length(colorVals), size = length(ExpIndX2))]) + 
   annotate(geom = "text", x = -Inf, y = Inf, hjust = -0.05, vjust = 2, label = "observational data", color = "royalblue")
 p_X2
 ggsave("simpleExample_X2.pdf", width = 3, height = 2.5)
@@ -156,10 +163,12 @@ p_X3 <- ggplot(df[rowIndX3, ], aes(x = X3, y = Y, group = ExpInd, color = factor
   geom_line(data = df_pred[which(df_pred$ExpInd == 1),  , drop = FALSE], aes(x = X3, y =YX3), color = "royalblue", linewidth = 1) +
   theme(panel.background = element_blank(), 
         panel.grid = element_blank(), 
-        panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+        panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
+        axis.title=element_text(size=9, face = "plain"),
         legend.key=element_blank(), 
         legend.position = "none") +
-  scale_color_manual(values = wes_palette("FantasticFox1", length(ExpIndX3), type = "continuous")) +
+  # scale_color_manual(values = wes_palette("FantasticFox1", length(ExpIndX3), type = "continuous")) +
+  scale_colour_manual(values = colorVals[sample(1:length(colorVals), size = length(ExpIndX3))]) + 
   annotate(geom = "text", x = -Inf, y = Inf, hjust = -0.05, vjust = 2, label = "observational data", color = "royalblue")
 p_X3
 ggsave("simpleExample_X3.pdf", width = 3, height = 2.5)

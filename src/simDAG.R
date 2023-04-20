@@ -36,7 +36,7 @@
 #'    ExpInd list: Each element contains an indicator which observation corresponds
 #'       to which subenvironemnt. 
 
-simDAG <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(-5, 5), 
+simDAG <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(0, 5), 
                    tau = 1, interType = "do", 
                    interMean = c(0, 0.1, 0.2, 0.5, 1, 2, 5, 10), 
                    interStrength = c(0.1, 0.2, 0.5, 1, 2, 5, 10), 

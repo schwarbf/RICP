@@ -22,10 +22,10 @@ if("florianschwarb" %in% Sys.info()){
 # ------------------------------------------------------------------------------
 # LOADING DATA
 # ------------------------------------------------------------------------------
-setwd(paste0(wdir, "res/wsubenv/multipleInter"))
+setwd(paste0(wdir, "res/subenv/multipleInter"))
 files <- c("scores_p.RData", "scores_k.RData", "scores_n.RData", "scores_nenv.RData", 
            "scores_interMean.RData", "scores_interTypes.RData", "scores_k.RData", 
-           "scores_nInter.RData", "scores_interStrength.RData", "scores_tau.RData")
+           "scores_nsubenvs.RData", "scores_interStrength.RData", "scores_tau.RData")
 for(file in files){
   load(file = file)
   fileName <- strsplit(file, ".RData")[[1]]
@@ -36,10 +36,10 @@ rm(scoresAll)
 # ------------------------------------------------------------------------------
 # PLOTTING
 # ------------------------------------------------------------------------------
-plotsReady <- c("p", "k", "n", "tau", "interType", "interMean", "interStrength", "nInter", "nenv")
+plotsReady <- c("p", "k", "n", "tau", "interType", "interMean", "interStrength", "nenv", "nsubenvs")
 metric <- "avgJaccard" # successProbability, avgJaccard, FWER
 
-metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"JACCARD SIMILARITY"} else {"FWER"}
+metricName <- if(metric == "successProbability") {"SUCCESS PROBABILITY"} else if(metric == "avgJaccard") {"AVG. JACCARD SIMILARITY"} else {"FWER"}
 
 # INTERVENTION MEAN
 # ------------------------------------------------------------------------------
@@ -53,8 +53,8 @@ if("interMean" %in% plotsReady) {
       df[method, interMean] <- scores_interMean[[interMean]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_interMean <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -64,9 +64,10 @@ if("interMean" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -74,7 +75,7 @@ if("interMean" %in% plotsReady) {
                                               scale_shape_manual(name = 'Legend', 
                                                                  labels = rowOrder, 
                                                                  values = c(1, 2, 3, 4, 5, 6, 7)) +
-    xlab("INTER. MEAN") +
+    xlab("INTERVENTION MEAN") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interMean <- p_interMean + geom_hline(yintercept = 0.05, linetype = 3)
@@ -93,8 +94,8 @@ if("interStrength" %in% plotsReady) {
       df[method, interStrength] <- scores_interStrength[[interStrength]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_interStrength <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -104,9 +105,10 @@ if("interStrength" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -114,7 +116,7 @@ if("interStrength" %in% plotsReady) {
                                               scale_shape_manual(name = 'Legend', 
                                                                  labels = rowOrder, 
                                                                  values = c(1, 2, 3, 4, 5, 6, 7)) +
-    xlab("INTER. STRENGTH") +
+    xlab("INTERVENTION STRENGTH") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interStrength <- p_interStrength + geom_hline(yintercept = 0.05, linetype = 3)
@@ -133,8 +135,8 @@ if("interType" %in% plotsReady) {
       df[method, interType] <- scores_interTypes[[interType]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_interType <- ggplot(df_melted, aes(x = variable, y = value, group = method, 
@@ -144,9 +146,10 @@ if("interType" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -155,7 +158,7 @@ if("interType" %in% plotsReady) {
                                                                  labels = rowOrder, 
                                                                  values = c(1, 2, 3, 4, 5, 6, 7)) +
     scale_x_discrete(labels = c("do", "soft", "simult. noise")) +
-    xlab("INTER. TYPE") +
+    xlab("INTERVENTION TYPE") +
     ylab(metricName)
   if(metric == "FWER") {
     p_interType <- p_interType + geom_hline(yintercept = 0.05, linetype = 3)
@@ -174,8 +177,8 @@ if("nInter" %in% plotsReady) {
       df[method, numInter] <- scores_nInter[[numInter]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_nInter <- ggplot(df_melted, aes(x = variable, y = value, group = method, 
@@ -185,9 +188,10 @@ if("nInter" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -214,8 +218,8 @@ if("k" %in% plotsReady) {
       df[method, k] <- scores_k[[k]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_k <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -225,9 +229,10 @@ if("k" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -254,8 +259,8 @@ if("n" %in% plotsReady) {
       df[method, n] <- scores_n[[n]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_n <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -265,9 +270,10 @@ if("n" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -294,8 +300,8 @@ if("nenv" %in% plotsReady) {
       df[method, nenv] <- scores_nenv[[nenv]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_nenv <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -305,9 +311,10 @@ if("nenv" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -334,8 +341,8 @@ if("nsubenvs" %in% plotsReady) {
       df[method, subenv] <- scores_nsubenvs[[subenv]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_nsubenvs <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -345,9 +352,10 @@ if("nsubenvs" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -374,8 +382,8 @@ if("p" %in% plotsReady) {
       df[method, p] <- scores_p[[p]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_p <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -385,9 +393,10 @@ if("p" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain"),) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -414,8 +423,8 @@ if("tau" %in% plotsReady) {
       df[method, tau] <- scores_tau[[tau]][[metric]][method, "avg"]
     }
   }
-  df$method <- methods
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  df$method <- c(methods[-length(methods)], "RE-ICP")
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df$method <- factor(df$method, levels = rowOrder)
   df_melted <- melt(df, id = "method")
   p_tau <- ggplot(df_melted, aes(x = variable, y = value, group = method, colour = method, 
@@ -425,9 +434,10 @@ if("tau" %in% plotsReady) {
     expand_limits(y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          legend.position = "right") +
+          legend.position = "right", 
+          axis.title=element_text(size=8, face = "plain")) +
     guides(color = guide_legend(title = 'Legend')) + 
     scale_colour_manual(name = 'Legend', 
                         labels = rowOrder, 
@@ -444,10 +454,10 @@ if("tau" %in% plotsReady) {
 
 # JOINT PLOT
 # ------------------------------------------------------------------------------
-p_joint <- ggarrange(p_p, p_k, p_n, p_tau, p_nenv, p_nInter, p_interType, p_interMean, p_interStrength, 
+p_joint <- ggarrange(p_p, p_k, p_n, p_tau, p_nenv, p_nsubenvs, p_interType, p_interMean, p_interStrength, 
           ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom")
 p_joint
-setwd(paste0(wdir, "fig/wsubenv/multipleInter"))
+setwd(paste0(wdir, "fig/subenv/multipleInter"))
 ggexport(p_joint, filename = paste0("jointPlot_RICP_", metric, ".pdf"))
 
 

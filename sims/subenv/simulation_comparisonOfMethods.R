@@ -82,8 +82,10 @@ for(metric in metrics) {
 }
 
 # saving as .RData-file
-setwd(paste0(wdir, "res/subenv"))
+setwd(paste0(wdir, "res/subenv/multipleInter"))
 save(scores, file = "scores_comparisonOfMethods.RData")
+
+load("scores_comparisonOfMethods.RData")
 
 # PLOTS
 # ------------------------------------------------------------------------------
@@ -94,8 +96,9 @@ p_compMethods <- list()
 for(metric in metrics) {
   df <- scores[[metric]][, -ncol(scores[[metric]]), drop = FALSE] %>%
     as.data.frame()
-  df$method <- rownames(df)
-  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RICP")
+  methods <- c(rownames(df)[-nrow(df)], "RE-ICP")
+  df$method <- rownames(df) <- methods
+  rowOrder <- c("random", "pooled regression", "GES", "LinGAM", "ICP", "nonlinearICP", "RE-ICP")
   df <- df %>% slice(match(rowOrder, method))
   df_melted <- melt(df, id = "method")
   df_melted[, "variable"] <- as.double(df_melted[, "variable"])
@@ -107,8 +110,6 @@ for(metric in metrics) {
     df_melted[rowInd, "sim"] <- iter 
     iter <- iter + 1
   }
-  quantiles <- sapply(1:nrow(df), function(i) quantile(df[i, -ncol(df)], probs = c(0, 0.25, 0.5, 0.75, 1)) %>% unlist()) %>%
-    suppressWarnings()
   p_compMethods[[metric]] <- ggplot(df_melted, aes(x = sim, y = value, group = sim)) +
     geom_point(aes(x = simSpread, y = value), color = "darksalmon", shape = 4, size = 1.5) +
     geom_boxplot(outlier.size = 0) +
@@ -116,28 +117,19 @@ for(metric in metrics) {
     expand_limits(x = nrow(df) + 1, y = 1) +
     theme(panel.background = element_blank(), 
           panel.grid = element_blank(), 
-          panel.border = element_rect(colour = "black", fill =NA, size = 1), 
+          panel.border = element_rect(colour = "black", fill =NA, size = 0.5), 
           legend.key=element_blank(), 
-          axis.title.x=element_blank(),
-          axis.ticks.x=element_blank(), 
+          axis.title.y = element_text(size=9, face = "plain"),
+          axis.title.x = element_blank(),
+          axis.ticks.x = element_blank(), 
           axis.text.x = element_text(angle = 45, hjust = 1)) +
     scale_x_continuous(breaks = c(1, 2, 3, 4, 5, 6, 7), labels = rowOrder) +
     ylab(ylabNames[[metric]])
   if(metric == "FWER") {
     p_compMethods[[metric]] <- p_compMethods[[metric]] + geom_hline(yintercept = 0.05, linetype = 3)
   }
-  iter <- 1
-  for(method in rownames(df)) {
-    # p_compMethods[[metric]] <- p_compMethods[[metric]] +   
-      # geom_segment(size = 0.3, aes_(x = iter + 0.1, y = quantiles[1, iter] , xend = iter + 0.9, yend = quantiles[1, iter])) +
-      # geom_segment(size = 0.3, aes_(x = iter + 0.1, y = quantiles[2, iter] , xend = iter + 0.9, yend = quantiles[2, iter])) +
-      # geom_segment(size = 0.3, aes_(x = iter + 0.1, y = quantiles[3, iter] , xend = iter + 0.9, yend = quantiles[3, iter])) +
-      # geom_segment(size = 0.3, aes_(x = iter + 0.1, y = quantiles[4, iter] , xend = iter + 0.9, yend = quantiles[4, iter])) +
-      # geom_segment(size = 0.3, aes_(x = iter + 0.1, y = quantiles[5, iter] , xend = iter + 0.9, yend = quantiles[5, iter])) 
-    iter <- iter + 1
-  }
   
-  setwd(paste0(wdir, "fig/subenv"))
+  setwd(paste0(wdir, "fig/subenv/multipleInter"))
   ggsave(paste0("compMethods_", metric, ".png"), dpi = "retina", width = 13, height = 10, units = "cm", device = "png")
 }
 
