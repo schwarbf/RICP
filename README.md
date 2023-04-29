@@ -31,7 +31,12 @@ The output of the Rscript is twofold:
  - A file `scores_comparison-of-methods.RData` containing all computed metrics from the simulation is saved in `res/`. The metrics include `FWER`, `success probability` and `average Jaccard similarity`. 
  - Plots displaying the 3 mentioned metrics for each methods are saved in `fig/`.
 
- Any other experiment that was performed can also be found in the `sims` folder. For example, investigating the effect of `tau` can be done by running in the terminal (or RStudio)
+ Any other experiment that was performed can also be found in the `sims` folder. For example, investigating the effect of `tau` can be done by running in the terminal (or RStudio). For example, an overview of all the analyzed effects showing the jaccard similarity is
+ 
+<p align="center">  
+    <img src="./fig/wsubenv/multipleInter/jointPlot_RICP_avgJaccard.svg" width=70% height=70%>
+</p>  
+
 ```
 Rscript sims/simulation_tau.R
 ```
