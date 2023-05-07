@@ -83,11 +83,11 @@ simDAG <- function(p = 4, k = 2, nenv = 10, renv = c(50, 80), rBeta = c(0, 5),
       interSig <- interMean + interStrength*runif(1)
     }
     rowInd <- if(env == 1) {1:n[env]} else {(sum(n[1:(env-1)]) +1):(sum(n[1:(env-1)]) + n[env])}
-    sdEps <- 1
+    sdEps <- sample(c(0.1, 0.2, 0.5, 1, 2, 5, 10), 1)
     eps[rowInd, ] <- matrix(rnorm(p*n[env], sd = sdEps), nrow = n[env], ncol = p)
     B[[env]] <- Sign
     B[[env]][ind] <- rnorm(length(Sign[ind]), sd = tau)
-    for(j in p:1) {
+    for(j in 1:p) {
       if(env != 1) {
         X[rowInd, j] <- X[rowInd, 1:j, drop = FALSE] %*% 
           (Beta[1:j, j] + B[[env]][1:j, j]) + eps[rowInd, j] 

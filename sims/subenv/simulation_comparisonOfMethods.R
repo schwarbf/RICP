@@ -35,7 +35,7 @@ source("runSimRICP.R")
 # SIMULATION: VANILLA COMPARISON OF METHODS
 # ------------------------------------------------------------------------------
 # parameters
-nsim <- 100
+nsim <- 7
 
 # initializing the cluster
 if("Linux" %in% Sys.info()) {
@@ -54,7 +54,7 @@ clusterExport(cl, c("RICP", "getpval", "getpvalwsubenvs", "lmeFit", "simDAG",
 
 # running simulation in parallel
 res <- parLapply(cl, 1:nsim, function(sim) {
-  runSimRICP(p = 5, k = 2, nenv = 30, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
+  runSimRICP(p = 3, k = 1, nenv = 30, renv = c(80, 100), rBeta = c(-5, 5), tau = 0.5,
              alpha = 0.05, interType = "do", interMean = 2, interStrength = 5,
              nInter = "multiple", subenvs = T, nsubenvs = 100, test = "LRT-lme4",
              methods = c("random", "pooled regression", "GES", "LinGAM", "ICP",
@@ -84,8 +84,6 @@ for(metric in metrics) {
 # saving as .RData-file
 setwd(paste0(wdir, "res/subenv/multipleInter"))
 save(scores, file = "scores_comparisonOfMethods.RData")
-
-load("scores_comparisonOfMethods.RData")
 
 # PLOTS
 # ------------------------------------------------------------------------------
@@ -130,7 +128,7 @@ for(metric in metrics) {
   }
   
   setwd(paste0(wdir, "fig/subenv/multipleInter"))
-  ggsave(paste0("compMethods_", metric, ".png"), dpi = "retina", width = 13, height = 10, units = "cm", device = "png")
+  # ggsave(paste0("compMethods_", metric, ".png"), dpi = "retina", width = 13, height = 10, units = "cm", device = "png")
 }
 
 

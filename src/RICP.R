@@ -92,7 +92,7 @@ RICP <- function(X, Y, ExpInd, alpha = 0.05, subenvs = FALSE, showAcceptedSets =
     candidate <- candidates[[setIter]]
     if(length(candidate) == 0) { # empty set 
       if(!subenvs) {
-        tmp <- getpval(X[, 1, drop = FALSE], Y, ExpInd, alpha = alpha)
+        tmp <- getpval(X[, 1, drop = FALSE], Y, ExpInd, alpha = alpha, test = test)
       } else{
         tmp <- getpvalwsubenvs(X[, 1, drop = FALSE], Y, ExpInd, alpha = alpha, 
                                test = test)
@@ -111,7 +111,8 @@ RICP <- function(X, Y, ExpInd, alpha = 0.05, subenvs = FALSE, showAcceptedSets =
     } else{ # any other set
       notcandidate <- colnames(X)[-c(1, which(colnames(X) %in% candidates[[setIter]]))]
       if(!subenvs) {
-        tmp <- getpval(X[, c("intercept", candidate), drop = FALSE], Y, ExpInd, alpha = alpha)
+        tmp <- getpval(X[, c("intercept", candidate), drop = FALSE], Y, ExpInd, alpha = alpha, 
+                       test = test)
       } else{
         tmp <- getpvalwsubenvs(X[, c("intercept", candidate), drop = FALSE], Y, ExpInd, alpha = alpha, 
                                test = test)

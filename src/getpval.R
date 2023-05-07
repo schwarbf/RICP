@@ -2,7 +2,7 @@
 #'
 #' @description Tests whether a given subset of predictors satisfies the 
 #'    hypothesis of 'invariance under random effects' without using subenvironments.
-#'su
+#'
 #' @param X data.frame: Contains the fixed-effects predictor.
 #' @param Y vector: Contains the response value for all environments.
 #' @param ExpInd list: Contains the indicators which environment observation 
@@ -37,11 +37,10 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
   colnames(confInt) <- c("lower", "upper")
   if("intercept" %in% colnames(X) && ncol(X) > 1) {confInt <- confInt[-1, , drop = FALSE]}
   
-  
-  # use Bonferroni-correction
+  # correct via Bonferroni
+  notRejected <- TRUE
   alphaBonfCor <- alpha/ncol(X)
   indEnv <- which(ExpInd == 1)
-  notRejected <- TRUE
     
   # check if matrix data[indEnv, ] has full column rank 
   if(!("intercept" %in% colnames(X))) {
@@ -50,8 +49,8 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
     colRankTest <- sapply(2:ncol(data), 
                           function(i) columnSums[i]/nrow(dataTest) == dataTest[1, i]) %>% sum()
     if(colRankTest == (ncol(data) - 1)) {
-      stop(paste0("The matrix of predictors in environment ", 1, " has not full ", 
-                  "column rank. Did you apply a do-intervention?"))
+      stop(paste0("The matrix of predictors in the observational environment", 
+                  "has not full column rank. Did you apply a do-intervention?"))
     }
   } 
 
@@ -96,7 +95,7 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
   if(checkOverlapOut > 0) {notRejected <- FALSE}
   result <- if(notRejected) {"not rejected"} else{"rejected"}
   
-  # construction of confidence regions
+  # construction of confidence interval
   if(result == "not rejected") {
     getConfInt <- function(i) {
       c(max(confInt_beta_lm[i, "lower"], confInt_beta_lmm[i, "lower"]), 
@@ -110,6 +109,9 @@ getpval <- function (X, Y, ExpInd, alpha = 0.05, test = "lme4") {
   } else{
     confInt <- integer(0)
   }
-
+  print(confInt_beta_lm)
+  print(confInt_beta_lmm)
+  print("---")
+  
   return(list(res = result, coeff = coeff, coeffSE = coeffSE, confInt = confInt))
 }
