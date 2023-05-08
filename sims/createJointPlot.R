@@ -22,7 +22,7 @@ if("florianschwarb" %in% Sys.info()){
 # ------------------------------------------------------------------------------
 # LOADING DATA
 # ------------------------------------------------------------------------------
-setwd(paste0(wdir, "res/subenv/multipleInter"))
+setwd(paste0(wdir, "res/wsubenv/multipleInter"))
 files <- c("scores_p.RData", "scores_k.RData", "scores_n.RData", "scores_nenv.RData", 
            "scores_interMean.RData", "scores_interTypes.RData", "scores_k.RData", 
            "scores_nsubenvs.RData", "scores_interStrength.RData", "scores_tau.RData")
